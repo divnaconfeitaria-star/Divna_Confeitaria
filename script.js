@@ -813,11 +813,14 @@ function renderizarGaleria() {
   let ampliavel = 0; // posição entre as fotos que abrem ampliadas
 
   $("#galeria").innerHTML = visiveis
-    .map((f) => {
-      if (!f.foto) return `<li class="galeria-item">${templateFotoVazia(f.legenda)}</li>`;
+    .map((f, i) => {
+      // "cortina": a foto se revela ao entrar na tela; as da mesma linha entram em sequência
+      const abertura = `<li class="galeria-item cortina" style="--atraso:${(i % 4) * 0.09}s">`;
+      if (!f.foto) return `${abertura}${templateFotoVazia(f.legenda)}</li>`;
       return (
-        `<li class="galeria-item"><button type="button" class="galeria-botao" data-foto="${ampliavel++}" aria-label="Ampliar foto: ${esc(f.legenda)}">` +
+        `${abertura}<button type="button" class="galeria-botao" data-foto="${ampliavel++}" aria-label="Ampliar foto: ${esc(f.legenda)}">` +
         `<img src="${esc(f.foto)}" alt="${esc(f.legenda)}" loading="lazy" decoding="async">` +
+        `<span class="galeria-legenda" aria-hidden="true">${esc(f.legenda)}</span>` +
         `</button></li>`
       );
     })
@@ -825,6 +828,7 @@ function renderizarGaleria() {
 
   $("#galeria-mais").hidden = vitrine.mostrarTodas || lista.length <= FOTOS_POR_VEZ;
   $$("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filtro === vitrine.filtro ? "true" : "false"));
+  if (iniciado) iniciarEntradaSuave(); // fotos novas (filtro, "ver mais") também ganham a entrada
 }
 
 function renderizarMosaico() {
@@ -834,7 +838,7 @@ function renderizarMosaico() {
   const mosaico = $("#hero-mosaico");
   mosaico.innerHTML = destaques
     .map((f, i) =>
-      `<div class="mosaico-item">` +
+      `<div class="mosaico-item cortina" style="--atraso:${0.25 + i * 0.15}s">` +
       (f.foto
         ? `<img src="${esc(f.foto)}" alt="${esc(f.legenda)}" decoding="async"${i === 0 ? ' fetchpriority="high"' : ""}>`
         : templateFotoVazia(f.legenda)) +
@@ -994,24 +998,194 @@ function formatarTelefone(numero) {
   return `(${ddd}) ${resto.slice(0, corte)}-${resto.slice(corte)}`;
 }
 
+let observadorEntrada = null;
+
+// Pode ser chamada de novo: só observa o que ainda não apareceu.
 function iniciarEntradaSuave() {
-  const alvos = $$(".revelar:not(.visivel)");
+  const alvos = $$(".revelar:not(.visivel), .cortina:not(.visivel)");
   if (!("IntersectionObserver" in window) || reduzMovimento()) {
     alvos.forEach((el) => el.classList.add("visivel"));
     return;
   }
-  const observador = new IntersectionObserver(
-    (entradas) => {
-      entradas.forEach((entrada) => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add("visivel");
-          observador.unobserve(entrada.target);
-        }
+  if (!observadorEntrada) {
+    observadorEntrada = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((entrada) => {
+          if (entrada.isIntersecting) {
+            entrada.target.classList.add("visivel");
+            observadorEntrada.unobserve(entrada.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
+    );
+  }
+  alvos.forEach((el) => observadorEntrada.observe(el));
+}
+
+/* ----------------------------------- EFEITOS -----------------------------------
+   Títulos que sobem palavra por palavra, faixa de palavras correndo, fotos do topo
+   em profundidade, fotos de fundo quase sumindo e o versículo que acende ao rolar.
+   Quem configurou o celular para "reduzir movimento" vê tudo parado. */
+
+const efeitos = { ativos: false, agendado: false, palavrasVerso: [] };
+const limitar = (n, min, max) => Math.min(max, Math.max(min, n));
+
+// Troca cada palavra do texto por um <span>, mantendo <em> e outras marcações.
+function separarPalavras(el, criar) {
+  let i = 0;
+  const percorrer = (no) => {
+    Array.from(no.childNodes).forEach((filho) => {
+      if (filho.nodeType === Node.ELEMENT_NODE) {
+        percorrer(filho);
+        return;
+      }
+      if (filho.nodeType !== Node.TEXT_NODE) return;
+      const pedacos = document.createDocumentFragment();
+      filho.textContent.split(/(\s+)/).forEach((parte) => {
+        if (!parte) return;
+        pedacos.appendChild(/^\s+$/.test(parte) ? document.createTextNode(parte) : criar(parte, i++));
       });
-    },
-    { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
+      no.replaceChild(pedacos, filho);
+    });
+  };
+  percorrer(el);
+}
+
+function prepararTitulos() {
+  $$("#titulo-hero, .titulo-secao").forEach((titulo) =>
+    separarPalavras(titulo, (palavra, i) => {
+      const fora = document.createElement("span");
+      const dentro = document.createElement("span");
+      fora.className = "palavra";
+      dentro.textContent = palavra;
+      dentro.style.setProperty("--i", i);
+      fora.appendChild(dentro);
+      return fora;
+    })
   );
-  alvos.forEach((el) => observador.observe(el));
+
+  const verso = $("#versiculo-texto p");
+  if (verso) {
+    separarPalavras(verso, (palavra) => {
+      const span = document.createElement("span");
+      span.className = "palavra-verso";
+      span.textContent = palavra;
+      return span;
+    });
+    efeitos.palavrasVerso = $$(".palavra-verso", verso);
+  }
+}
+
+// A faixa precisa de cópias suficientes do grupo de palavras para nunca aparecer um buraco.
+function montarFaixa() {
+  const trilho = $(".faixa-trilho");
+  const grupo = trilho && $(".faixa-grupo", trilho);
+  if (!grupo) return;
+
+  const ajustar = () => {
+    $$(".faixa-grupo", trilho).slice(1).forEach((g) => g.remove());
+    const largura = grupo.getBoundingClientRect().width;
+    if (!largura) return;
+    const copias = Math.ceil(window.innerWidth / largura) + 1;
+    for (let i = 0; i < copias; i++) trilho.appendChild(grupo.cloneNode(true));
+    trilho.style.setProperty("--grupo", `${largura}px`);
+    trilho.style.setProperty("--duracao", `${Math.round(largura / 55)}s`); // ~55 pixels por segundo
+  };
+
+  ajustar();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+  let espera;
+  window.addEventListener("resize", () => {
+    clearTimeout(espera);
+    espera = setTimeout(ajustar, 200);
+  });
+}
+
+// Fotos clarinhas no fundo das faixas (FUNDO_FESTAS e FUNDO_VERSICULO, em galeria.js).
+function aplicarFundos() {
+  const foto = (valor) => (typeof valor === "string" ? valor.trim() : "");
+  const urlCss = (caminho) => `url("${caminho.replace(/["\\]/g, "\\$&")}")`;
+
+  const festas = foto(typeof FUNDO_FESTAS !== "undefined" ? FUNDO_FESTAS : "");
+  if (festas) {
+    const camada = document.createElement("div");
+    camada.className = "festas-foto fundo-parallax";
+    camada.setAttribute("aria-hidden", "true");
+    camada.style.backgroundImage = urlCss(festas);
+    $("#festas").prepend(camada);
+  }
+
+  const versiculo = foto(typeof FUNDO_VERSICULO !== "undefined" ? FUNDO_VERSICULO : "");
+  const fundoVerso = $("#versiculo-fundo");
+  if (fundoVerso) {
+    if (versiculo) fundoVerso.style.backgroundImage = urlCss(versiculo);
+    else fundoVerso.classList.add("sem-foto");
+  }
+}
+
+function atualizarEfeitos() {
+  efeitos.agendado = false;
+  const alturaTela = window.innerHeight;
+  $(".topo").classList.toggle("rolou", window.scrollY > 8);
+  if (!efeitos.ativos) return;
+
+  // Fotos do topo sobem em velocidades diferentes (profundidade)
+  const mosaico = $("#hero-mosaico");
+  if (!mosaico.hidden && window.scrollY < alturaTela * 1.5) {
+    mosaico.style.setProperty("--rolagem", `${window.scrollY}px`);
+  }
+
+  // Fotos de fundo andam mais devagar que a página
+  $$(".fundo-parallax").forEach((camada) => {
+    const caixa = camada.parentElement.getBoundingClientRect();
+    if (caixa.bottom < 0 || caixa.top > alturaTela) return;
+    const distancia = caixa.top + caixa.height / 2 - alturaTela / 2;
+    camada.style.transform = `translate3d(0, ${(distancia * -0.15).toFixed(1)}px, 0)`;
+  });
+
+  // Versículo: as palavras acendem conforme a faixa sobe na tela
+  const palavras = efeitos.palavrasVerso;
+  if (palavras.length) {
+    const caixa = $(".versiculo").getBoundingClientRect();
+    if (caixa.bottom > 0 && caixa.top < alturaTela) {
+      const progresso = limitar((alturaTela * 0.9 - caixa.top) / (caixa.height * 0.8), 0, 1);
+      palavras.forEach((p, i) => {
+        p.style.opacity = (0.16 + 0.84 * limitar(progresso * (palavras.length + 1) - i, 0, 1)).toFixed(3);
+      });
+    }
+  }
+}
+
+function agendarEfeitos() {
+  if (efeitos.agendado) return;
+  efeitos.agendado = true;
+  requestAnimationFrame(atualizarEfeitos);
+}
+
+function ligarEfeitos() {
+  efeitos.ativos = !reduzMovimento();
+  // O versículo começa apagado e vai acendendo (só com os efeitos ligados)
+  if (efeitos.ativos) efeitos.palavrasVerso.forEach((p) => { p.style.opacity = "0.16"; });
+  window.addEventListener("scroll", agendarEfeitos, { passive: true });
+  window.addEventListener("resize", agendarEfeitos);
+
+  // No computador, as fotos do topo acompanham levemente o mouse
+  const hero = $(".hero");
+  const mosaico = $("#hero-mosaico");
+  if (efeitos.ativos && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
+    hero.addEventListener("pointermove", (e) => {
+      const caixa = hero.getBoundingClientRect();
+      mosaico.style.setProperty("--mx", (((e.clientX - caixa.left) / caixa.width) * 2 - 1).toFixed(3));
+      mosaico.style.setProperty("--my", (((e.clientY - caixa.top) / caixa.height) * 2 - 1).toFixed(3));
+    });
+    hero.addEventListener("pointerleave", () => {
+      mosaico.style.setProperty("--mx", 0);
+      mosaico.style.setProperty("--my", 0);
+    });
+  }
+
+  atualizarEfeitos();
 }
 
 function iniciar() {
@@ -1029,6 +1203,11 @@ function iniciar() {
   ligarEventosVitrine();
   ligarLinksWhatsApp();
   esconderLinksSemDestino();
+
+  prepararTitulos();
+  montarFaixa();
+  aplicarFundos();
+  ligarEfeitos();
 
   $("#ano").textContent = new Date().getFullYear();
   const telefone = $("#rodape-whatsapp");

@@ -75,6 +75,8 @@
         <div class="hero-conteudo">
           <img class="logo" src="assets/logo.jpg" width="640" height="530" alt="D'Ivna Confeitaria">
           <h1 id="titulo-hero" class="revelar">Tudo feito com <em>Amor.</em></h1>
+          <!-- EDITAR: versículo do topo -->
+          <p class="hero-versiculo revelar" style="transition-delay:.04s">“Todas as vossas coisas sejam feitas com amor.” <cite>1 Coríntios 16:14</cite></p>
           <!-- EDITAR: texto sobre a confeitaria -->
           <p class="hero-texto revelar" style="transition-delay:.08s">Salgados, doces finos, tortas e bolos para os seus momentos especiais. Escolha no cardápio, monte seu pedido e finalize direto pelo WhatsApp.</p>
           <div class="hero-botoes revelar" style="transition-delay:.16s">
@@ -91,6 +93,21 @@
         <div class="hero-mosaico" id="hero-mosaico" hidden></div>
       </div>
     </section>
+
+    <!-- ===================== FAIXA DE PALAVRAS CORRENDO ===================== -->
+    <!-- EDITAR: palavras da faixa (o script repete o grupo para a faixa não ter fim) -->
+    <div class="faixa-palavras" aria-hidden="true">
+      <div class="faixa-trilho">
+        <div class="faixa-grupo">
+          <span>Salgados</span><i></i>
+          <span class="contorno">Doces finos</span><i></i>
+          <span>Tortas</span><i></i>
+          <span class="contorno">Bolos</span><i></i>
+          <span>Pão delícia</span><i></i>
+          <span class="contorno">Feito com amor</span><i></i>
+        </div>
+      </div>
+    </div>
 
     <!-- ===================== NOSSOS TRABALHOS (galeria.js) ===================== -->
     <section class="vitrine" id="trabalhos" aria-labelledby="titulo-vitrine" hidden>
@@ -184,11 +201,23 @@
       </div>
     </section>
 
+    <!-- ===================== VERSÍCULO ===================== -->
+    <!-- As palavras acendem uma a uma conforme a pessoa rola a página.
+         A foto clarinha do fundo vem de FUNDO_VERSICULO, em galeria.js -->
+    <section class="versiculo" aria-label="Versículo">
+      <div class="versiculo-fundo fundo-parallax" id="versiculo-fundo" aria-hidden="true"></div>
+      <figure class="versiculo-interno">
+        <!-- EDITAR: versículo em destaque (de preferência o preferido da confeiteira) -->
+        <blockquote class="versiculo-texto" id="versiculo-texto"><p>Provai e vede que o Senhor é bom.</p></blockquote>
+        <figcaption class="versiculo-ref">Salmos 34:8</figcaption>
+      </figure>
+    </section>
+
     <!-- ===================== SOBRE ===================== -->
     <section class="sobre" id="sobre" aria-labelledby="titulo-sobre">
       <div class="sobre-interno">
         <!-- A foto vem de FOTO_SOBRE, em galeria.js -->
-        <div class="sobre-foto revelar" id="sobre-foto"></div>
+        <div class="sobre-foto cortina" id="sobre-foto"></div>
         <div class="sobre-texto revelar" style="transition-delay:.08s">
           <span class="eyebrow">Sobre</span>
           <h2 class="titulo-secao" id="titulo-sobre">Quem faz a D'Ivna</h2>
@@ -260,6 +289,8 @@
           <span class="marca-script">Confeitaria</span>
         </div>
         <p>Salgados, doces finos, tortas e bolos por encomenda.</p>
+        <!-- EDITAR: versículo do rodapé -->
+        <p class="rodape-versiculo">“Em tudo dai graças.” <cite>1 Tessalonicenses 5:18</cite></p>
       </div>
 
       <div class="rodape-coluna">

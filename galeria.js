@@ -23,6 +23,11 @@
 // Foto da confeiteira na seção "Sobre" (deixe "" enquanto não tiver).
 const FOTO_SOBRE = "";
 
+// Fotos que aparecem bem clarinhas, quase sumindo, no fundo de duas faixas do site.
+// Funcionam melhor fotos com bastante coisa (mesa de festa, bandeja cheia). Deixe "" para usar só a cor.
+const FUNDO_FESTAS = "";      // faixa vermelha "Festas e eventos"
+const FUNDO_VERSICULO = "";   // faixa do versículo
+
 // EDITAR: trocar os quadros abaixo pelas fotos reais (os que estão com foto "" são só modelo).
 const GALERIA = [
   { foto: "", legenda: "Mesa de doces para aniversário", categoria: "Festas", destaque: true },
