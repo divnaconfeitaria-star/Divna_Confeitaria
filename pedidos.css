@@ -1,0 +1,315 @@
+/* =====================================================================
+   D'Ivna Confeitaria — painel de pedidos
+   Usa as cores e fontes de style.css. Mobile-first.
+   ===================================================================== */
+
+:root {
+  --ok: #4F7D5C;
+  --ok-suave: #EDF4EE;
+}
+
+body.adm { background: var(--fundo); }
+
+.adm-main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 16px 96px;
+}
+
+.adm-titulo {
+  margin: 4px 0 0;
+  font-family: var(--fonte-titulo);
+  font-weight: 500;
+  font-size: clamp(34px, 7vw, 44px);
+  line-height: 1.05;
+}
+
+/* ---------- Conta (topo) ---------- */
+.adm-conta { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.adm-email {
+  overflow: hidden;
+  max-width: 34vw;
+  font-size: 14px;
+  color: var(--texto-suave);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Botões ---------- */
+.adm-btn-sec {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--rosa-seda);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s;
+}
+.adm-btn-sec:hover { border-color: var(--rosa-taupe); background: var(--cereja-suave); }
+.adm-btn-sec:disabled { opacity: 0.6; cursor: wait; }
+
+/* ---------- Cartões de login / avisos ---------- */
+.adm-cartao {
+  padding: 32px 24px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+}
+.adm-estreito { max-width: 440px; margin: 24px auto 0; }
+.adm-cartao p { color: var(--texto-suave); }
+.adm-cartao code { font-size: 14px; color: var(--cereja); }
+.adm-form { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
+.adm-form .btn-principal { margin-top: 6px; }
+
+/* ---------- Cabeçalho do painel ---------- */
+.adm-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.adm-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- Filtros ---------- */
+.adm-filtros { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+.adm-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 2px 16px 6px;
+  scrollbar-width: none;
+}
+.adm-chips::-webkit-scrollbar { display: none; }
+
+.adm-chip {
+  flex: none;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--rosa-seda);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 15px;
+  color: var(--texto);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.adm-chip:hover { border-color: var(--rosa-taupe); }
+.adm-chip[aria-pressed="true"] {
+  border-color: var(--cereja);
+  background: var(--cereja);
+  color: #fff;
+}
+
+.adm-datas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+}
+.adm-datas label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.adm-datas input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--rosa-seda);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 16px;
+}
+
+.adm-intervalo {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--rosa-texto);
+}
+
+/* ---------- Resumo ---------- */
+.adm-resumo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.adm-resumo .adm-numero:first-child { grid-column: 1 / -1; }
+@media (min-width: 640px) {
+  .adm-resumo .adm-numero:first-child { grid-column: auto; }
+}
+@media (min-width: 640px) {
+  .adm-resumo { grid-template-columns: 1.3fr 1fr 1fr; }
+}
+
+.adm-numero {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 18px 20px;
+  border: 1px solid var(--linha);
+  border-radius: 20px;
+  background: #fff;
+}
+.adm-numero:first-child { background: var(--fundo-hero); border-color: var(--rosa-claro); }
+.adm-rotulo { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
+.adm-numero strong {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1.1;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+.adm-numero:first-child strong { color: var(--cereja); }
+.adm-detalhe { font-size: 14px; color: var(--texto-suave); }
+
+.adm-chips-status { margin-bottom: 16px; }
+
+/* ---------- Avisos ---------- */
+.adm-aviso {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--ok-suave);
+  color: var(--ok);
+  font-size: 15px;
+}
+.adm-aviso.erro-aviso { background: var(--cereja-suave); color: var(--cereja-escura); }
+
+.adm-vazio {
+  margin: 0;
+  padding: 40px 16px;
+  border: 1px dashed var(--rosa-seda);
+  border-radius: 20px;
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+/* ---------- Lista de pedidos ---------- */
+.adm-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-pedido {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px 18px 24px;
+  border: 1px solid var(--linha);
+  border-radius: 20px;
+  background: #fff;
+  overflow: hidden;
+}
+.adm-pedido::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 5px;
+  background: var(--rosa-seda);
+}
+.adm-pedido[data-status="novo"]::before { background: var(--cereja); }
+.adm-pedido[data-status="confirmado"]::before { background: var(--rosa-profundo); }
+.adm-pedido[data-status="entregue"]::before { background: var(--ok); }
+.adm-pedido[data-status="cancelado"] { background: #FCFAFA; }
+.adm-pedido[data-status="cancelado"] .adm-valor { text-decoration: line-through; color: var(--texto-suave); }
+.adm-pedido[data-status="cancelado"] .adm-cliente,
+.adm-pedido[data-status="cancelado"] .adm-itens { color: var(--texto-suave); }
+
+.adm-ped-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.adm-ped-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.adm-codigo { font-weight: 500; letter-spacing: 0.08em; color: var(--rosa-texto); }
+.adm-ped-id time { font-size: 14px; color: var(--texto-suave); }
+.adm-valor {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--cereja);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-cliente { margin: 0; font-size: 18px; font-weight: 500; overflow-wrap: anywhere; }
+
+.adm-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--linha);
+  list-style: none;
+  font-size: 15px;
+}
+.adm-itens li { display: flex; justify-content: space-between; gap: 12px; }
+.adm-itens li span:last-child { flex: none; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+
+.adm-obs {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--fundo-hero);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.adm-obs span { font-weight: 500; }
+
+/* Status: selo colorido + seletor */
+.adm-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.adm-selo {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--rosa-claro);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--rosa-texto);
+}
+.adm-pedido[data-status="novo"] .adm-selo { background: var(--cereja-suave); color: var(--cereja); }
+.adm-pedido[data-status="entregue"] .adm-selo { background: var(--ok-suave); color: var(--ok); }
+.adm-pedido[data-status="cancelado"] .adm-selo { background: #F1ECEC; color: var(--texto-suave); }
+
+.adm-status select {
+  min-height: 44px;
+  padding: 0 40px 0 14px;
+  border: 1px solid var(--rosa-seda);
+  border-radius: 12px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C5B5F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+  font: inherit;
+  font-size: 15px;
+  color: var(--texto);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.adm-status select:disabled { opacity: 0.6; cursor: wait; }
+
+@media (max-width: 560px) {
+  .adm-main { padding-top: 24px; }
+  .adm-acoes { width: 100%; }
+  .adm-acoes .adm-btn-sec { flex: 1; }
+  .adm-conta .adm-email { display: none; }
+}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Pedidos | D'Ivna Confeitaria</title>
+  <meta name="theme-color" content="#F9ECEB">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pedidos.css">
+</head>
+<body class="adm">
+  <!-- Painel privado da confeiteira. Os dados só aparecem para a conta autorizada
+       (regras do banco em supabase/pedidos.sql). Esta página não aparece no site. -->
+
+  <header class="topo">
+    <div class="topo-interno">
+      <a class="marca" href="index.html" aria-label="Ir para o site da D'Ivna Confeitaria">
+        <span class="marca-nome">D'Ivna</span>
+        <span class="marca-script">Confeitaria</span>
+      </a>
+      <div class="adm-conta" id="conta" hidden>
+        <span class="adm-email" id="conta-email"></span>
+        <button type="button" class="adm-btn-sec" id="btn-sair">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <!-- ===================== AVISO DE CONFIGURAÇÃO ===================== -->
+    <section class="adm-cartao adm-estreito" id="tela-config" hidden>
+      <h1 class="adm-titulo">Painel ainda não configurado</h1>
+      <p>Preencha <code>SUPABASE_URL</code> e <code>SUPABASE_CHAVE</code> no arquivo <code>config.js</code> (o README explica o passo a passo).</p>
+    </section>
+
+    <!-- ===================== LOGIN ===================== -->
+    <section class="adm-cartao adm-estreito" id="tela-login" hidden aria-labelledby="titulo-login">
+      <span class="eyebrow">Área da confeiteira</span>
+      <h1 class="adm-titulo" id="titulo-login">Entrar no painel</h1>
+      <form id="form-login" class="adm-form" novalidate>
+        <div class="campo">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" autocomplete="username" inputmode="email" required>
+        </div>
+        <div class="campo">
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" autocomplete="current-password" required>
+        </div>
+        <p class="erro" id="erro-login" role="alert" hidden></p>
+        <button type="submit" class="btn-principal btn-cheio" id="btn-entrar">Entrar</button>
+      </form>
+    </section>
+
+    <!-- ===================== SEM PERMISSÃO ===================== -->
+    <section class="adm-cartao adm-estreito" id="tela-sem-acesso" hidden>
+      <h1 class="adm-titulo">Sem acesso</h1>
+      <p>Esta conta entrou, mas não tem permissão para ver os pedidos. Peça para cadastrá-la como administradora (README, passo do Supabase).</p>
+      <button type="button" class="adm-btn-sec" id="btn-sair-2">Sair e entrar com outra conta</button>
+    </section>
+
+    <!-- ===================== PAINEL ===================== -->
+    <section id="tela-painel" hidden aria-labelledby="titulo-painel">
+      <div class="adm-cabecalho">
+        <div>
+          <span class="eyebrow">Painel</span>
+          <h1 class="adm-titulo" id="titulo-painel">Pedidos</h1>
+        </div>
+        <div class="adm-acoes">
+          <button type="button" class="adm-btn-sec" id="btn-atualizar">Atualizar</button>
+          <button type="button" class="adm-btn-sec" id="btn-csv">Baixar planilha (CSV)</button>
+        </div>
+      </div>
+
+      <div class="adm-filtros">
+        <div class="adm-chips" role="group" aria-label="Período">
+          <button type="button" class="adm-chip" data-periodo="hoje">Hoje</button>
+          <button type="button" class="adm-chip" data-periodo="semana">Esta semana</button>
+          <button type="button" class="adm-chip" data-periodo="mes">Este mês</button>
+          <button type="button" class="adm-chip" data-periodo="mes-passado">Mês passado</button>
+          <button type="button" class="adm-chip" data-periodo="datas">Escolher datas</button>
+        </div>
+        <form class="adm-datas" id="form-datas" hidden>
+          <label>De <input type="date" id="data-de" required></label>
+          <label>Até <input type="date" id="data-ate" required></label>
+          <button type="submit" class="adm-btn-sec">Ver</button>
+        </form>
+        <p class="adm-intervalo" id="intervalo" aria-live="polite"></p>
+      </div>
+
+      <div class="adm-resumo" id="resumo">
+        <div class="adm-numero">
+          <span class="adm-rotulo">Vendido</span>
+          <strong id="r-vendido">R$ 0,00</strong>
+          <span class="adm-detalhe" id="r-vendido-qtd">confirmados e entregues</span>
+        </div>
+        <div class="adm-numero">
+          <span class="adm-rotulo">Aguardando confirmação</span>
+          <strong id="r-novos">0</strong>
+          <span class="adm-detalhe" id="r-novos-valor">R$ 0,00</span>
+        </div>
+        <div class="adm-numero">
+          <span class="adm-rotulo">Pedidos no período</span>
+          <strong id="r-total">0</strong>
+          <span class="adm-detalhe" id="r-cancelados">0 cancelados</span>
+        </div>
+      </div>
+
+      <div class="adm-chips adm-chips-status" role="group" aria-label="Filtrar por status">
+        <button type="button" class="adm-chip" data-status="todos">Todos</button>
+        <button type="button" class="adm-chip" data-status="novo">Novos</button>
+        <button type="button" class="adm-chip" data-status="confirmado">Confirmados</button>
+        <button type="button" class="adm-chip" data-status="entregue">Entregues</button>
+        <button type="button" class="adm-chip" data-status="cancelado">Cancelados</button>
+      </div>
+
+      <p class="adm-aviso" id="aviso" role="status" hidden></p>
+      <p class="adm-vazio" id="vazio" hidden>Nenhum pedido neste período.</p>
+      <ol class="adm-lista" id="lista"></ol>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="pedidos.js"></script>
+</body>
+</html>
