@@ -25,7 +25,7 @@ const FOTO_SOBRE = "assets/galeria/sobre-confeiteira.jpg";
 
 // Fotos que aparecem bem clarinhas, quase sumindo, no fundo de duas faixas do site.
 // Funcionam melhor fotos com bastante coisa (mesa de festa, bandeja cheia). Deixe "" para usar só a cor.
-const FUNDO_FESTAS = "assets/galeria/bolo-carnaval.jpg";            // faixa vermelha "Festas e eventos"
+const FUNDO_FESTAS = "";                                   // faixa vermelha de orçamento: lisa, sem foto
 const FUNDO_VERSICULO = "assets/galeria/bolo-happy-birthday.jpg";   // faixa do versículo
 
 // EDITAR: legendas provisórias, ajuste ao gosto. A ordem aqui é a ordem do carrossel.

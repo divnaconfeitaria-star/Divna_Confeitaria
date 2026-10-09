@@ -1211,7 +1211,6 @@ function mostrarDepoimentos(lista) {
   const area = $("#lista-depoimentos");
   area.innerHTML = lista.map(templateDepoimento).join("");
   area.hidden = lista.length === 0;
-  $("#depoimentos-vazio").hidden = lista.length > 0;
   iniciarEntradaSuave();
 }
 
@@ -1329,9 +1328,14 @@ function renderizarDepoimentos() {
 
 function renderizarSobre() {
   const foto = typeof FOTO_SOBRE === "string" ? FOTO_SOBRE.trim() : "";
-  $("#sobre-foto").innerHTML = foto
-    ? `<img src="${esc(foto)}" alt="A confeiteira da D'Ivna Confeitaria" loading="lazy" decoding="async">`
+  const area = $("#sobre-foto");
+  // Sem "lazy": é uma foto só, importante, e já fica perto do começo da seção.
+  area.innerHTML = foto
+    ? `<img src="${esc(foto)}" alt="A confeiteira da D'Ivna Confeitaria" decoding="async">`
     : templateFotoVazia("Foto da confeiteira");
+  // Se a foto não carregar por qualquer motivo, mostra o quadro no lugar do texto solto.
+  const img = $("img", area);
+  if (img) img.addEventListener("error", () => { area.innerHTML = templateFotoVazia("Foto da confeiteira"); });
 }
 
 // Links com data-whatsapp="mensagem" abrem o WhatsApp com a mensagem pronta.

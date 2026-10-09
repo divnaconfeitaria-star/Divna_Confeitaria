@@ -55,7 +55,7 @@ assets/         logo, ícone e imagem de prévia do link (og-imagem.jpg)
   (para achar: procure `class="completar"`).
 - **Versículos:** `index.html`, procure por `EDITAR: versículo` (topo, faixa do meio e rodapé).
   Na faixa do meio, as palavras acendem sozinhas conforme a pessoa rola a página.
-- **Fotos clarinhas de fundo:** `galeria.js`, `FUNDO_FESTAS` e `FUNDO_VERSICULO`.
+- **Fotos clarinhas de fundo:** `galeria.js`, `FUNDO_VERSICULO` (a faixa de orçamento de festas é lisa, sem foto).
 - **Palavras da faixa que corre:** `index.html`, procure por `EDITAR: palavras da faixa`.
 - **Cores:** `style.css`, bloco `:root` no começo.
 

@@ -113,9 +113,8 @@
     <section class="vitrine" id="trabalhos" aria-labelledby="titulo-vitrine" hidden>
       <div class="secao-interna">
         <div class="cabecalho-secao revelar">
-          <span class="eyebrow">Nossos trabalhos</span>
           <h2 class="titulo-secao" id="titulo-vitrine">Um pouco do que sai da nossa cozinha</h2>
-          <p class="subtitulo-secao">Encomendas que já fizeram parte de muitas comemorações. Toque em uma foto para ampliar.</p>
+          <p class="subtitulo-secao">Toque em uma foto para ampliar.</p>
         </div>
         <div class="filtros" id="filtros-galeria" role="group" aria-label="Filtrar fotos por tipo" hidden></div>
 
@@ -143,8 +142,8 @@
     <section class="passos" id="como-funciona" aria-labelledby="titulo-passos">
       <div class="secao-interna">
         <div class="cabecalho-secao revelar">
-          <span class="eyebrow">Como funciona</span>
-          <h2 class="titulo-secao" id="titulo-passos">Pedir é simples</h2>
+          <h2 class="titulo-secao titulo-grande" id="titulo-passos">Como funciona?</h2>
+          <p class="subtitulo-secao">Siga o passo a passo abaixo.</p>
         </div>
         <ol class="lista-passos">
           <li class="passo revelar">
@@ -163,6 +162,7 @@
             <p>Vocês combinam a data, a retirada ou entrega e o pagamento.</p>
           </li>
         </ol>
+        <p class="passos-final revelar">Pedir é simples.</p>
       </div>
     </section>
 
@@ -189,11 +189,10 @@
       <div class="secao-interna">
         <div class="cabecalho-secao revelar">
           <span class="eyebrow">Depoimentos</span>
-          <h2 class="titulo-secao" id="titulo-depoimentos">Quem provou, recomenda</h2>
+          <h2 class="titulo-secao" id="titulo-depoimentos">Quem provou, recomenda!</h2>
         </div>
 
         <!-- Os depoimentos aprovados vêm do banco (ver depoimentos.sql) e, se houver, de depoimentos.js -->
-        <p class="depoimentos-vazio" id="depoimentos-vazio" hidden>Ainda não há depoimentos por aqui. Que tal ser a primeira pessoa a contar como foi?</p>
         <div class="lista-depoimentos" id="lista-depoimentos" role="region" aria-label="Depoimentos de clientes" tabindex="0" hidden></div>
 
         <!-- ===== Formulário: o depoimento só aparece no site depois que a confeiteira aprovar no painel ===== -->
@@ -253,22 +252,11 @@
 
     <!-- ===================== FESTAS E EVENTOS ===================== -->
     <section class="festas" id="festas" aria-labelledby="titulo-festas">
-      <span class="festas-fundo" aria-hidden="true">Celebre</span>
       <div class="festas-interno revelar">
-        <span class="eyebrow">Festas e eventos</span>
-        <h2 class="titulo-secao" id="titulo-festas">Vai comemorar? Conte com a gente.</h2>
-        <p>Salgados, doces finos, tortas e bolos na medida da sua festa. Conte a data, o tipo de evento e quantos convidados vêm, e a confeiteira prepara um orçamento para você.</p>
-        <!-- EDITAR: ocasiões atendidas -->
-        <ul class="ocasioes">
-          <li>Aniversários</li>
-          <li>Chás</li>
-          <li>Batizados</li>
-          <li>Casamentos</li>
-          <li>Confraternizações</li>
-        </ul>
+        <h2 class="titulo-secao" id="titulo-festas">Vai fazer uma festa? Peça um orçamento.</h2>
         <a class="btn-claro" href="https://wa.me/5571982310364" data-whatsapp="Gostaria de um orçamento para uma festa." target="_blank" rel="noopener">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
-          <span>Pedir orçamento pelo WhatsApp</span>
+          <span>Pedir orçamento</span>
         </a>
       </div>
     </section>
@@ -394,7 +382,7 @@
         </ul>
       </nav>
 
-      <p class="copy">© <span id="ano">2026</span> D'Ivna Confeitaria</p>
+      <p class="copy">© <span id="ano">2026</span> D'Ivna Confeitaria<span class="copy-sep" aria-hidden="true"> · </span><span class="copy-autor">Site desenvolvido por Cauã Oliveira · <a class="copy-tel" href="https://wa.me/5571981828080" target="_blank" rel="noopener" aria-label="Falar com o desenvolvedor, Cauã Oliveira, pelo WhatsApp">(71) 98182-8080</a></span></p>
     </div>
   </footer>
 

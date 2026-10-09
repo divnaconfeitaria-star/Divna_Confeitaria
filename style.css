@@ -1180,56 +1180,19 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 .festas {
   position: relative;
   overflow: hidden;
-  padding: 104px clamp(16px, 5vw, 64px);
+  padding: 56px clamp(16px, 5vw, 64px);
   background: linear-gradient(140deg, var(--cereja), var(--cereja-escura));
   color: #fff;
   text-align: center;
-}
-.festas-fundo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  font-family: var(--fonte-script);
-  font-size: clamp(160px, 30vw, 360px);
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.07);
-  white-space: nowrap;
-  transform: translate(-50%, -50%) rotate(-8deg);
-  pointer-events: none;
-  user-select: none;
 }
 .festas-interno {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
   max-width: 720px;
   margin: 0 auto;
-}
-.festas .eyebrow { color: rgba(255, 255, 255, 0.85); }
-.festas p {
-  margin: 0;
-  max-width: 600px;
-  font-size: 18px;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.92);
-}
-.ocasioes {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin: 4px 0 8px;
-  padding: 0;
-  list-style: none;
-}
-.ocasioes li {
-  padding: 6px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 999px;
-  font-size: 14px;
-  letter-spacing: 0.02em;
 }
 .festas :focus-visible { outline-color: #fff; }
 
@@ -1355,6 +1318,22 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   padding-top: 24px;
   border-top: 1px solid var(--rosa-seda);
   font-size: 14px;
+  text-align: center; /* centralizado */
+}
+.copy-tel { white-space: nowrap; text-decoration: underline; }
+.copy-tel:hover { color: var(--cereja); }
+@media (max-width: 560px) { .copy-sep { display: none; } .copy-autor { display: block; margin-top: 4px; } }
+
+/* Seção "Como funciona?": título maior e o fecho depois do passo a passo */
+.passos .titulo-grande { font-size: clamp(42px, 6.4vw, 66px); }
+.passos-final {
+  margin: 0;
+  text-align: center;
+  font-family: var(--fonte-titulo);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 38px);
+  color: var(--cereja);
 }
 
 /* ---------- Animação de entrada ---------- */
@@ -1503,17 +1482,6 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   to { transform: translateX(calc(-1 * var(--grupo, 50%))); }
 }
 
-/* Foto clarinha no fundo da faixa de festas (FUNDO_FESTAS) */
-.festas-foto {
-  position: absolute;
-  inset: -25% 0;
-  background-position: center;
-  background-size: cover;
-  opacity: 0.2;
-  mix-blend-mode: luminosity;
-  pointer-events: none;
-}
-
 /* Versículos */
 .hero-versiculo {
   max-width: 460px;
@@ -1616,7 +1584,6 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 }
 
 /* ---------- Depoimentos: estrelas, formulário ---------- */
-.depoimentos-vazio { margin: 0; text-align: center; color: var(--texto-suave); font-size: 17px; }
 .depoimento-estrelas { margin-top: -6px; font-size: 18px; letter-spacing: 0.12em; color: var(--cereja); }
 
 .deixe-depoimento {
@@ -1741,7 +1708,7 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   .sobre,
   .duvidas { padding-top: 72px; padding-bottom: 72px; }
   .cardapio { padding-bottom: 96px; }
-  .festas { padding-top: 80px; padding-bottom: 80px; }
+  .festas { padding-top: 44px; padding-bottom: 44px; }
   .versiculo { padding-top: 104px; padding-bottom: 104px; }
   .faixa-palavras { padding: 18px 0; }
   .faixa-grupo span { padding: 0 18px; }
