@@ -1,0 +1,4 @@
+# Arquivos que ficam no GitHub mas NÃO vão para o site no ar
+# (ninguém precisa ver a estrutura do banco nem as instruções internas).
+supabase
+README.md
