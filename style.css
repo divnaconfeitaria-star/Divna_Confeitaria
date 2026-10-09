@@ -900,6 +900,124 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 .galeria-botao:focus-visible img { transform: scale(1.05); }
 .galeria-mais { align-self: center; }
 
+/* Carrossel (filtro "Todas"): foto do meio grande, vizinhas menores dos lados */
+.carrossel {
+  --slide: min(74vw, 400px);
+  --sangria: clamp(16px, 5vw, 64px); /* mesmo espaço lateral das seções */
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.carrossel-trilho {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  margin: 0 calc(-1 * var(--sangria));
+  /* o espaço dos lados deixa a primeira e a última foto no centro */
+  padding: 10px calc(50% - var(--slide) / 2 + var(--sangria)) 22px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* as fotos das pontas somem aos poucos */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+.carrossel-trilho::-webkit-scrollbar { display: none; }
+
+.carrossel-slide {
+  flex: 0 0 var(--slide);
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--rosa-claro);
+  scroll-snap-align: center;
+  opacity: 0.5;
+  transform: scale(0.88);
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.6s, box-shadow 0.6s;
+}
+.carrossel-slide.ativo { opacity: 1; transform: none; box-shadow: var(--sombra-suave); }
+
+.carrossel-botao {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: inherit;
+  background: none;
+}
+.carrossel-botao:focus-visible { outline-offset: -4px; }
+.carrossel-botao img { width: 100%; height: 100%; object-fit: cover; }
+
+.carrossel-legenda {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 56px 20px 18px;
+  background: linear-gradient(to top, rgba(36, 29, 30, 0.78), transparent);
+  color: #fff;
+  font-family: var(--fonte-titulo);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.2;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s 0.15s, transform 0.5s 0.15s;
+}
+.carrossel-slide.ativo .carrossel-legenda { opacity: 1; transform: none; }
+.carrossel-categoria {
+  font-family: var(--fonte-texto);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.carrossel-controles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.carrossel-pontos { display: flex; flex-wrap: wrap; justify-content: center; }
+/* Bolinha pequena, mas área de toque confortável */
+.carrossel-ponto {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  transition: width 0.3s;
+}
+.carrossel-ponto::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--rosa-seda);
+  transition: width 0.3s, background 0.3s;
+}
+.carrossel-ponto[aria-current="true"] { width: 38px; }
+.carrossel-ponto[aria-current="true"]::before { width: 26px; background: var(--cereja); }
+.carrossel-contagem { min-width: 64px; font-size: 14px; text-align: center; color: var(--texto-suave); }
+.carrossel-pausa { color: var(--cereja); }
+@media (max-width: 560px) {
+  .carrossel-controles { gap: 6px; }
+  .carrossel-ponto { width: 16px; }
+  .carrossel-ponto[aria-current="true"] { width: 30px; }
+  .carrossel-ponto[aria-current="true"]::before { width: 20px; }
+}
+
 /* Foto ampliada */
 .foto-ampliada {
   width: min(1000px, calc(100vw - 24px));
@@ -1306,29 +1424,22 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 }
 .js .cortina.visivel > * { clip-path: inset(0); transform: none; }
 
-/* Fotos do topo em profundidade: rolagem (--rolagem) e mouse (--mx, --my) */
+/* Fotos do topo: no computador, andam um pouquinho em velocidades diferentes ao rolar
+   (--rolagem vem do script). No celular ficam paradas e alinhadas. */
 .hero { overflow: hidden; }
 .mosaico-item {
   --vel: 0;
-  --prof: 0;
-  transform: translate3d(
-    calc(var(--mx, 0) * var(--prof) * 1px),
-    calc(var(--rolagem, 0px) * var(--vel) + var(--my, 0) * var(--prof) * 1px),
-    0
-  );
+  transform: translate3d(0, calc(var(--rolagem, 0px) * var(--vel)), 0);
 }
 .js .mosaico-item.cortina {
   transition:
     opacity 0.4s ease var(--atraso, 0s),
     transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.mosaico-item:nth-child(1) { --vel: 0.03; }
-.mosaico-item:nth-child(2) { --vel: 0.06; }
-.mosaico-item:nth-child(3) { --vel: 0.09; }
 @media (min-width: 960px) {
-  .mosaico-item:nth-child(1) { --vel: -0.06; --prof: 14; }
-  .mosaico-item:nth-child(2) { --vel: 0.04; --prof: -10; }
-  .mosaico-item:nth-child(3) { --vel: -0.1; --prof: 20; }
+  .mosaico-item:nth-child(1) { --vel: -0.04; }
+  .mosaico-item:nth-child(2) { --vel: 0.03; }
+  .mosaico-item:nth-child(3) { --vel: -0.06; }
 }
 
 /* Legenda que desliza sobre a foto da vitrine */

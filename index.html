@@ -118,6 +118,22 @@
           <p class="subtitulo-secao">Encomendas que já fizeram parte de muitas comemorações. Toque em uma foto para ampliar.</p>
         </div>
         <div class="filtros" id="filtros-galeria" role="group" aria-label="Filtrar fotos por tipo" hidden></div>
+
+        <!-- Em "Todas": carrossel que passa sozinho. Nos outros filtros: a grade abaixo. -->
+        <div class="carrossel" id="carrossel" role="region" aria-roledescription="carrossel" aria-label="Fotos dos nossos trabalhos" hidden>
+          <ul class="carrossel-trilho" id="carrossel-trilho"></ul>
+          <div class="carrossel-controles">
+            <button type="button" class="btn-icone" id="carrossel-anterior" aria-label="Foto anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="carrossel-pontos" id="carrossel-pontos"></div>
+            <button type="button" class="btn-icone" id="carrossel-proxima" aria-label="Próxima foto">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <button type="button" class="btn-icone carrossel-pausa" id="carrossel-pausa" aria-label="Pausar o carrossel"></button>
+          </div>
+        </div>
+
         <ul class="galeria" id="galeria"></ul>
         <button type="button" class="btn-secundario galeria-mais" id="galeria-mais" hidden>Ver mais fotos</button>
       </div>

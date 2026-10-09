@@ -852,8 +852,208 @@ function renderizarMosaico() {
 function renderizarVitrine() {
   if (!FOTOS.length) return; // sem fotos, a seção continua escondida
   renderizarFiltros();
-  renderizarGaleria();
+  renderizarCarrossel();
   $("#trabalhos").hidden = false;
+  aplicarModoVitrine();
+}
+
+// "Todas" mostra o carrossel; os outros filtros mostram a grade só com aquele tipo.
+function aplicarModoVitrine() {
+  const todas = vitrine.filtro === "Todas";
+  $("#carrossel").hidden = !todas;
+  $("#galeria").hidden = todas;
+  if (todas) {
+    $("#galeria-mais").hidden = true;
+    $$("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filtro === "Todas" ? "true" : "false"));
+    requestAnimationFrame(() => irParaSlide(carrossel.atual, false));
+    iniciarRelogioCarrossel();
+  } else {
+    renderizarGaleria();
+  }
+}
+
+/* -------------------------- CARROSSEL (filtro "Todas") -------------------------- */
+
+const CARROSSEL_INTERVALO_MS = 4500;
+const ICONE_PAUSA =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+const ICONE_PLAY =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
+
+const carrossel = {
+  atual: 0,
+  pausado: false,         // botão de pausa
+  pausaTemporaria: false, // mouse em cima, dedo tocando, foco do teclado
+  naTela: false,
+  relogio: null,
+  agendado: false
+};
+
+const slidesCarrossel = () => $$(".carrossel-slide", $("#carrossel-trilho"));
+
+function renderizarCarrossel() {
+  let ampliavel = 0;
+  $("#carrossel-trilho").innerHTML = FOTOS.map((f, i) => {
+    const legenda =
+      `<span class="carrossel-legenda">` +
+      (f.categoria ? `<span class="carrossel-categoria">${esc(f.categoria)}</span>` : "") +
+      `<span>${esc(f.legenda)}</span></span>`;
+    const miolo = f.foto
+      ? `<button type="button" class="carrossel-botao" data-foto="${ampliavel++}" aria-label="Ampliar foto: ${esc(f.legenda)}">` +
+        `<img src="${esc(f.foto)}" alt="${esc(f.legenda)}"${i > 2 ? ' loading="lazy"' : ""} decoding="async">${legenda}</button>`
+      : templateFotoVazia(f.legenda);
+    return `<li class="carrossel-slide" aria-roledescription="slide" aria-label="${i + 1} de ${FOTOS.length}">${miolo}</li>`;
+  }).join("");
+
+  // Até 12 fotos: bolinhas. Mais que isso: contador "3 de 20".
+  $("#carrossel-pontos").innerHTML =
+    FOTOS.length <= 12
+      ? FOTOS.map((f, i) => `<button type="button" class="carrossel-ponto" data-slide="${i}" aria-label="Ir para a foto ${i + 1}: ${esc(f.legenda)}"></button>`).join("")
+      : `<span class="carrossel-contagem" id="carrossel-contagem"></span>`;
+
+  const variasFotos = FOTOS.length > 1;
+  $("#carrossel-anterior").hidden = !variasFotos;
+  $("#carrossel-proxima").hidden = !variasFotos;
+  $("#carrossel-pausa").hidden = !variasFotos;
+  marcarSlideAtivo(0);
+}
+
+function marcarSlideAtivo(indice) {
+  carrossel.atual = indice;
+  slidesCarrossel().forEach((s, i) => s.classList.toggle("ativo", i === indice));
+  $$(".carrossel-ponto").forEach((p, i) => p.setAttribute("aria-current", i === indice ? "true" : "false"));
+  const contagem = $("#carrossel-contagem");
+  if (contagem) contagem.textContent = `${indice + 1} de ${FOTOS.length}`;
+}
+
+// Slide cujo centro está mais perto do centro do carrossel
+function slideMaisCentral() {
+  const trilho = $("#carrossel-trilho");
+  const centro = trilho.scrollLeft + trilho.clientWidth / 2;
+  let melhor = 0;
+  let menorDistancia = Infinity;
+  slidesCarrossel().forEach((s, i) => {
+    const distancia = Math.abs(s.offsetLeft + s.offsetWidth / 2 - centro);
+    if (distancia < menorDistancia) {
+      menorDistancia = distancia;
+      melhor = i;
+    }
+  });
+  return melhor;
+}
+
+function irParaSlide(indice, suave = true) {
+  const slides = slidesCarrossel();
+  if (!slides.length) return;
+  const alvo = slides[(indice + slides.length) % slides.length];
+  const trilho = $("#carrossel-trilho");
+  trilho.scrollTo({
+    left: alvo.offsetLeft + alvo.offsetWidth / 2 - trilho.clientWidth / 2,
+    behavior: suave && !reduzMovimento() ? "smooth" : "auto"
+  });
+}
+
+const carrosselPodeAndar = () =>
+  !carrossel.pausado &&
+  !carrossel.pausaTemporaria &&
+  carrossel.naTela &&
+  !document.hidden &&
+  !$("#carrossel").hidden &&
+  !$("#foto-ampliada").open &&
+  slidesCarrossel().length > 1;
+
+// Recomeça a contagem (depois de a pessoa mexer, a próxima troca espera o tempo todo)
+function iniciarRelogioCarrossel() {
+  clearInterval(carrossel.relogio);
+  carrossel.relogio = setInterval(() => {
+    if (carrosselPodeAndar()) irParaSlide(carrossel.atual + 1);
+  }, CARROSSEL_INTERVALO_MS);
+}
+
+function atualizarBotaoPausa() {
+  const botao = $("#carrossel-pausa");
+  botao.innerHTML = carrossel.pausado ? ICONE_PLAY : ICONE_PAUSA;
+  botao.setAttribute("aria-label", carrossel.pausado ? "Continuar o carrossel" : "Pausar o carrossel");
+}
+
+function ligarCarrossel() {
+  const caixa = $("#carrossel");
+  const trilho = $("#carrossel-trilho");
+
+  // Quem prefere menos movimento começa com o carrossel parado
+  carrossel.pausado = reduzMovimento();
+  atualizarBotaoPausa();
+
+  trilho.addEventListener("scroll", () => {
+    if (carrossel.agendado) return;
+    carrossel.agendado = true;
+    requestAnimationFrame(() => {
+      carrossel.agendado = false;
+      const indice = slideMaisCentral();
+      if (indice !== carrossel.atual) marcarSlideAtivo(indice);
+    });
+  }, { passive: true });
+
+  const navegar = (indice) => {
+    irParaSlide(indice);
+    iniciarRelogioCarrossel();
+  };
+  $("#carrossel-anterior").addEventListener("click", () => navegar(carrossel.atual - 1));
+  $("#carrossel-proxima").addEventListener("click", () => navegar(carrossel.atual + 1));
+  $("#carrossel-pontos").addEventListener("click", (e) => {
+    const ponto = e.target.closest("[data-slide]");
+    if (ponto) navegar(Number(ponto.dataset.slide));
+  });
+  $("#carrossel-pausa").addEventListener("click", () => {
+    carrossel.pausado = !carrossel.pausado;
+    atualizarBotaoPausa();
+    iniciarRelogioCarrossel();
+  });
+
+  trilho.addEventListener("click", (e) => {
+    const botao = e.target.closest("[data-foto]");
+    if (botao) abrirFoto(Number(botao.dataset.foto), botao);
+  });
+  trilho.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); navegar(carrossel.atual - 1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); navegar(carrossel.atual + 1); }
+  });
+
+  // Pausa enquanto a pessoa está mexendo
+  let retomar;
+  caixa.addEventListener("mouseenter", () => { carrossel.pausaTemporaria = true; });
+  caixa.addEventListener("mouseleave", () => {
+    carrossel.pausaTemporaria = false;
+    iniciarRelogioCarrossel();
+  });
+  trilho.addEventListener("touchstart", () => {
+    carrossel.pausaTemporaria = true;
+    clearTimeout(retomar);
+    retomar = setTimeout(() => {
+      carrossel.pausaTemporaria = false;
+      iniciarRelogioCarrossel();
+    }, 6000);
+  }, { passive: true });
+  caixa.addEventListener("focusin", () => { carrossel.pausaTemporaria = true; });
+  caixa.addEventListener("focusout", (e) => {
+    if (!caixa.contains(e.relatedTarget)) carrossel.pausaTemporaria = false;
+  });
+
+  // Só anda quando está na tela
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entrada]) => { carrossel.naTela = entrada.isIntersecting; }, { threshold: 0.3 }).observe(caixa);
+  } else {
+    carrossel.naTela = true;
+  }
+
+  // Ao girar o celular ou mudar o tamanho da janela, recentra a foto atual
+  let espera;
+  window.addEventListener("resize", () => {
+    clearTimeout(espera);
+    espera = setTimeout(() => irParaSlide(carrossel.atual, false), 150);
+  });
+
+  iniciarRelogioCarrossel();
 }
 
 /* ------------------------------- FOTO AMPLIADA ------------------------------- */
@@ -893,8 +1093,10 @@ function ligarEventosVitrine() {
     if (!botao || botao.dataset.filtro === vitrine.filtro) return;
     vitrine.filtro = botao.dataset.filtro;
     vitrine.mostrarTodas = false;
-    renderizarGaleria();
+    aplicarModoVitrine();
   });
+
+  ligarCarrossel();
 
   $("#galeria").addEventListener("click", (e) => {
     const botao = e.target.closest("[data-foto]");
@@ -1169,22 +1371,6 @@ function ligarEfeitos() {
   if (efeitos.ativos) efeitos.palavrasVerso.forEach((p) => { p.style.opacity = "0.16"; });
   window.addEventListener("scroll", agendarEfeitos, { passive: true });
   window.addEventListener("resize", agendarEfeitos);
-
-  // No computador, as fotos do topo acompanham levemente o mouse
-  const hero = $(".hero");
-  const mosaico = $("#hero-mosaico");
-  if (efeitos.ativos && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
-    hero.addEventListener("pointermove", (e) => {
-      const caixa = hero.getBoundingClientRect();
-      mosaico.style.setProperty("--mx", (((e.clientX - caixa.left) / caixa.width) * 2 - 1).toFixed(3));
-      mosaico.style.setProperty("--my", (((e.clientY - caixa.top) / caixa.height) * 2 - 1).toFixed(3));
-    });
-    hero.addEventListener("pointerleave", () => {
-      mosaico.style.setProperty("--mx", 0);
-      mosaico.style.setProperty("--my", 0);
-    });
-  }
-
   atualizarEfeitos();
 }
 
