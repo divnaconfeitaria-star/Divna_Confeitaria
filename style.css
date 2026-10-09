@@ -1289,17 +1289,22 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 }
 .js .visivel .palavra > span { transform: none; }
 
-/* "Cortina": a foto se abre de baixo para cima e desfaz um leve zoom */
+/* "Cortina": a foto se abre de baixo para cima e desfaz um leve zoom.
+   O recorte fica na foto (filho), nunca na moldura: a moldura é o que o script observa
+   para saber se entrou na tela, e um elemento 100% recortado conta como invisível. */
 .js .cortina {
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.25, 1) var(--atraso, 0s);
+  opacity: 0;
+  transition: opacity 0.4s ease var(--atraso, 0s);
 }
-.js .cortina.visivel { clip-path: inset(-60px); } /* negativo: não corta a sombra */
+.js .cortina.visivel { opacity: 1; }
 .js .cortina > * {
+  clip-path: inset(100% 0 0 0);
   transform: scale(1.18);
-  transition: transform 1.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0s);
+  transition:
+    clip-path 1.1s cubic-bezier(0.65, 0, 0.25, 1) var(--atraso, 0s),
+    transform 1.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0s);
 }
-.js .cortina.visivel > * { transform: none; }
+.js .cortina.visivel > * { clip-path: inset(0); transform: none; }
 
 /* Fotos do topo em profundidade: rolagem (--rolagem) e mouse (--mx, --my) */
 .hero { overflow: hidden; }
@@ -1314,7 +1319,7 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 }
 .js .mosaico-item.cortina {
   transition:
-    clip-path 1.1s cubic-bezier(0.65, 0, 0.25, 1) var(--atraso, 0s),
+    opacity 0.4s ease var(--atraso, 0s),
     transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .mosaico-item:nth-child(1) { --vel: 0.03; }
@@ -1441,8 +1446,17 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   z-index: -1;
   background-position: center;
   background-size: cover;
-  opacity: 0.14;
-  filter: saturate(0.85);
+  opacity: 0.1;
+  filter: saturate(0.7);
+  pointer-events: none;
+}
+/* Névoa no centro: a foto do fundo some onde fica o texto e aparece nas bordas */
+.versiculo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse 70% 60% at center, rgba(249, 236, 235, 0.92), rgba(249, 236, 235, 0.35) 70%, transparent);
   pointer-events: none;
 }
 .versiculo-fundo.sem-foto {
@@ -1540,7 +1554,8 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
     transition-delay: 0s !important;
   }
   .js .revelar { opacity: 1; transform: none; }
-  .js .cortina { clip-path: none; }
+  .js .cortina { opacity: 1; }
+  .js .cortina > * { clip-path: none; }
   .js .cortina > *,
   .js .palavra > span { transform: none; }
 }
