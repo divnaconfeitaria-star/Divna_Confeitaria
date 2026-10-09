@@ -1,0 +1,2 @@
+Coloque aqui as fotos dos produtos (JPG ou WebP, com uns 1200 pixels de largura)
+e liste cada uma no arquivo galeria.js, na raiz do site.

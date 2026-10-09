@@ -7,17 +7,20 @@ e a confeiteira acompanha tudo numa página privada (`pedidos.html`).
 ## Estrutura
 
 ```
-index.html      site (início + cardápio + carrinho)
+index.html      site (início, trabalhos, cardápio, depoimentos, festas, sobre, dúvidas)
 style.css       visual (cores, fontes, animações)
 cardapio.js     sabores, categorias e preços  <- o arquivo que você mais vai editar
-script.js       funcionamento (sanfona, carrinho, WhatsApp, registro do pedido)
+galeria.js      fotos da vitrine, do topo da página e da seção "Sobre"
+depoimentos.js  depoimentos de clientes
+script.js       funcionamento (sanfona, carrinho, WhatsApp, registro do pedido, vitrine)
 config.js       endereço e chave do Supabase  <- preencher uma vez
 pedidos.html    painel privado da confeiteira (login)
 pedidos.css     visual do painel
 pedidos.js      funcionamento do painel
 supabase/
   pedidos.sql   cria o banco de pedidos e as regras de segurança
-assets/         logo e ícone
+assets/         logo, ícone e imagem de prévia do link (og-imagem.jpg)
+  galeria/      fotos dos produtos
 ```
 
 ## Rodar no VS Code
@@ -34,7 +37,22 @@ assets/         logo e ícone
 - **Sabores e preços:** `cardapio.js` (o topo do arquivo explica passo a passo).
 - **Quantidade mínima:** em `cardapio.js`, acrescente `minimo: 30` no grupo desejado.
 - **Texto de apresentação:** `index.html`, procure por `EDITAR: texto sobre a confeitaria`.
+- **Fotos dos produtos:** coloque os arquivos em `assets/galeria/` e liste em `galeria.js`
+  (o topo do arquivo explica). Foto que ainda não existe aparece como um quadro "foto em breve".
+- **Foto em cada categoria do cardápio:** em `cardapio.js`, acrescente `foto: "assets/galeria/arquivo.jpg"`
+  na categoria; ela entra no lugar do ícone de cereja.
+- **Depoimentos:** `depoimentos.js`. Só depoimentos reais, com autorização do cliente.
+  Com a lista vazia, a seção some do site.
+- **História, perguntas frequentes, horário e região de entrega:** `index.html`, procure por `EDITAR`.
+  Os textos provisórios aparecem com **fundo amarelo** no site; troque todos antes de publicar
+  (para achar: procure `class="completar"`).
 - **Cores:** `style.css`, bloco `:root` no começo.
+
+### Tamanho das fotos
+
+Fotos de celular costumam ter 3 a 5 MB, o que deixa o site lento. Antes de colocar no site, reduza
+para uns 1200 pixels de largura (dá para fazer em squoosh.app, de graça, escolhendo JPG ou WebP).
+Prefira fotos com boa luz e fundo limpo; as quadradas ou em pé ficam melhores na vitrine.
 
 ## Banco de pedidos e painel (Supabase, plano grátis)
 

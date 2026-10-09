@@ -206,10 +206,14 @@ function templateSecao(cat, sec) {
 function templateCategoria(cat) {
   const idBotao = `cat-botao-${cat.id}`;
   const idPainel = `cat-painel-${cat.id}`;
+  // Com "foto" na categoria (cardapio.js), a foto entra no lugar do ícone de cereja.
+  const icone = cat.foto
+    ? `<img src="${esc(cat.foto)}" alt="" width="56" height="56" loading="lazy" decoding="async">`
+    : ICONES.cereja;
   return (
     `<article class="categoria revelar" data-categoria="${esc(cat.id)}">` +
     `<h3 class="categoria-titulo"><button type="button" class="categoria-botao" id="${idBotao}" aria-expanded="false" aria-controls="${idPainel}">` +
-    `<span class="cat-icone">${ICONES.cereja}</span>` +
+    `<span class="cat-icone${cat.foto ? " com-foto" : ""}">${icone}</span>` +
     `<span class="cat-textos"><span class="cat-nome">${esc(cat.nome)}</span><span class="cat-apoio">${esc(textoApoio(cat))}</span></span>` +
     `<span class="cat-seta">${ICONES.seta}</span>` +
     `</button></h3>` +
@@ -765,6 +769,220 @@ function ligarEventos() {
   });
 }
 
+/* --------------------------- VITRINE DE FOTOS (galeria.js) --------------------------- */
+
+// Quantas fotos aparecem antes do botão "Ver mais fotos".
+const FOTOS_POR_VEZ = 8;
+
+const FOTOS = (typeof GALERIA !== "undefined" && Array.isArray(GALERIA) ? GALERIA : [])
+  .filter((f) => f && (f.foto || f.legenda))
+  .map((f) => ({
+    foto: String(f.foto || "").trim(),
+    legenda: String(f.legenda || "").trim(),
+    categoria: String(f.categoria || "").trim(),
+    destaque: Boolean(f.destaque)
+  }));
+
+const vitrine = { filtro: "Todas", mostrarTodas: false, atual: 0, origem: null };
+
+// Quadro mostrado enquanto a foto não foi colocada (foto: "" em galeria.js).
+function templateFotoVazia(legenda) {
+  return (
+    `<span class="foto-vazia">${ICONES.cereja}` +
+    `<span class="foto-vazia-legenda">${esc(legenda || "Foto")}</span>` +
+    `<span class="foto-vazia-aviso">foto em breve</span></span>`
+  );
+}
+
+const fotosFiltradas = () =>
+  vitrine.filtro === "Todas" ? FOTOS : FOTOS.filter((f) => f.categoria === vitrine.filtro);
+const fotosAmpliaveis = () => fotosFiltradas().filter((f) => f.foto);
+
+function renderizarFiltros() {
+  const categorias = [...new Set(FOTOS.map((f) => f.categoria).filter(Boolean))];
+  const area = $("#filtros-galeria");
+  area.hidden = categorias.length < 2;
+  area.innerHTML = ["Todas", ...categorias]
+    .map((c) => `<button type="button" class="filtro" data-filtro="${esc(c)}" aria-pressed="false">${esc(c)}</button>`)
+    .join("");
+}
+
+function renderizarGaleria() {
+  const lista = fotosFiltradas();
+  const visiveis = vitrine.mostrarTodas ? lista : lista.slice(0, FOTOS_POR_VEZ);
+  let ampliavel = 0; // posição entre as fotos que abrem ampliadas
+
+  $("#galeria").innerHTML = visiveis
+    .map((f) => {
+      if (!f.foto) return `<li class="galeria-item">${templateFotoVazia(f.legenda)}</li>`;
+      return (
+        `<li class="galeria-item"><button type="button" class="galeria-botao" data-foto="${ampliavel++}" aria-label="Ampliar foto: ${esc(f.legenda)}">` +
+        `<img src="${esc(f.foto)}" alt="${esc(f.legenda)}" loading="lazy" decoding="async">` +
+        `</button></li>`
+      );
+    })
+    .join("");
+
+  $("#galeria-mais").hidden = vitrine.mostrarTodas || lista.length <= FOTOS_POR_VEZ;
+  $$("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filtro === vitrine.filtro ? "true" : "false"));
+}
+
+function renderizarMosaico() {
+  const destaques = FOTOS.filter((f) => f.destaque).slice(0, 3);
+  if (!destaques.length) return;
+
+  const mosaico = $("#hero-mosaico");
+  mosaico.innerHTML = destaques
+    .map((f, i) =>
+      `<div class="mosaico-item">` +
+      (f.foto
+        ? `<img src="${esc(f.foto)}" alt="${esc(f.legenda)}" decoding="async"${i === 0 ? ' fetchpriority="high"' : ""}>`
+        : templateFotoVazia(f.legenda)) +
+      `</div>`
+    )
+    .join("");
+  mosaico.hidden = false;
+  $(".hero").classList.add("com-mosaico");
+}
+
+function renderizarVitrine() {
+  if (!FOTOS.length) return; // sem fotos, a seção continua escondida
+  renderizarFiltros();
+  renderizarGaleria();
+  $("#trabalhos").hidden = false;
+}
+
+/* ------------------------------- FOTO AMPLIADA ------------------------------- */
+
+function mostrarFotoAmpliada(indice) {
+  const fotos = fotosAmpliaveis();
+  if (!fotos.length) return;
+  vitrine.atual = (indice + fotos.length) % fotos.length;
+  const f = fotos[vitrine.atual];
+
+  const img = $("#foto-img");
+  img.src = f.foto;
+  img.alt = f.legenda;
+  $("#foto-legenda").textContent = f.legenda;
+  $("#foto-contagem").textContent = fotos.length > 1 ? `${vitrine.atual + 1} de ${fotos.length}` : "";
+  $("#foto-anterior").hidden = fotos.length < 2;
+  $("#foto-proxima").hidden = fotos.length < 2;
+}
+
+function abrirFoto(indice, origem) {
+  const dialogo = $("#foto-ampliada");
+  if (typeof dialogo.showModal !== "function") {
+    // Navegador antigo, sem janela de diálogo: abre a foto numa aba.
+    const f = fotosAmpliaveis()[indice];
+    if (f) abrirLink(f.foto);
+    return;
+  }
+  vitrine.origem = origem || null;
+  mostrarFotoAmpliada(indice);
+  dialogo.showModal();
+  document.body.classList.add("sem-rolagem");
+}
+
+function ligarEventosVitrine() {
+  $("#filtros-galeria").addEventListener("click", (e) => {
+    const botao = e.target.closest("[data-filtro]");
+    if (!botao || botao.dataset.filtro === vitrine.filtro) return;
+    vitrine.filtro = botao.dataset.filtro;
+    vitrine.mostrarTodas = false;
+    renderizarGaleria();
+  });
+
+  $("#galeria").addEventListener("click", (e) => {
+    const botao = e.target.closest("[data-foto]");
+    if (botao) abrirFoto(Number(botao.dataset.foto), botao);
+  });
+
+  $("#galeria-mais").addEventListener("click", () => {
+    const antes = $$(".galeria-item").length;
+    vitrine.mostrarTodas = true;
+    renderizarGaleria();
+    // Leva o foco para a primeira foto nova, para quem navega pelo teclado.
+    const primeiraNova = $$(".galeria-item")[antes];
+    const alvo = primeiraNova && $("button", primeiraNova);
+    if (alvo) alvo.focus();
+  });
+
+  const dialogo = $("#foto-ampliada");
+  $("#foto-fechar").addEventListener("click", () => dialogo.close());
+  $("#foto-anterior").addEventListener("click", () => mostrarFotoAmpliada(vitrine.atual - 1));
+  $("#foto-proxima").addEventListener("click", () => mostrarFotoAmpliada(vitrine.atual + 1));
+
+  // Toque fora da foto fecha
+  dialogo.addEventListener("click", (e) => {
+    if (e.target === dialogo) dialogo.close();
+  });
+
+  dialogo.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") mostrarFotoAmpliada(vitrine.atual - 1);
+    else if (e.key === "ArrowRight") mostrarFotoAmpliada(vitrine.atual + 1);
+  });
+
+  // Arrastar o dedo para o lado troca de foto
+  let toqueX = null;
+  dialogo.addEventListener("touchstart", (e) => { toqueX = e.touches[0].clientX; }, { passive: true });
+  dialogo.addEventListener("touchend", (e) => {
+    if (toqueX === null) return;
+    const distancia = e.changedTouches[0].clientX - toqueX;
+    toqueX = null;
+    if (Math.abs(distancia) > 50 && fotosAmpliaveis().length > 1) {
+      mostrarFotoAmpliada(vitrine.atual + (distancia < 0 ? 1 : -1));
+    }
+  });
+
+  dialogo.addEventListener("close", () => {
+    document.body.classList.remove("sem-rolagem");
+    $("#foto-img").src = "data:,";
+    if (vitrine.origem && document.contains(vitrine.origem)) vitrine.origem.focus();
+  });
+}
+
+/* ------------------------- DEPOIMENTOS E SOBRE ------------------------- */
+
+function renderizarDepoimentos() {
+  const lista = (typeof DEPOIMENTOS !== "undefined" && Array.isArray(DEPOIMENTOS) ? DEPOIMENTOS : [])
+    .filter((d) => d && String(d.texto || "").trim());
+  if (!lista.length) return; // sem depoimentos, a seção continua escondida
+
+  $("#lista-depoimentos").innerHTML = lista
+    .map((d, i) =>
+      `<figure class="depoimento revelar" style="transition-delay:${Math.min(i, 2) * 0.08}s">` +
+      `<span class="depoimento-aspas" aria-hidden="true">“</span>` +
+      `<blockquote><p>${esc(String(d.texto).trim())}</p></blockquote>` +
+      `<figcaption><span class="depoimento-nome">${esc(d.nome || "Cliente")}</span>` +
+      (d.ocasiao ? `<span class="depoimento-ocasiao">${esc(d.ocasiao)}</span>` : "") +
+      `</figcaption></figure>`
+    )
+    .join("");
+  $("#depoimentos").hidden = false;
+}
+
+function renderizarSobre() {
+  const foto = typeof FOTO_SOBRE === "string" ? FOTO_SOBRE.trim() : "";
+  $("#sobre-foto").innerHTML = foto
+    ? `<img src="${esc(foto)}" alt="A confeiteira da D'Ivna Confeitaria" loading="lazy" decoding="async">`
+    : templateFotoVazia("Foto da confeiteira");
+}
+
+// Links com data-whatsapp="mensagem" abrem o WhatsApp com a mensagem pronta.
+function ligarLinksWhatsApp() {
+  $$("[data-whatsapp]").forEach((a) => {
+    a.href = linkWhatsApp(`Olá, ${NOME_LOJA}! ${a.dataset.whatsapp}`);
+  });
+}
+
+// Esconde links do menu e do rodapé que apontam para seções escondidas (ex.: sem depoimentos).
+function esconderLinksSemDestino() {
+  $$('a[href^="#"]').forEach((a) => {
+    const alvo = a.hash.length > 1 && document.getElementById(a.hash.slice(1));
+    if (alvo && alvo.hidden) (a.closest("li") || a).hidden = true;
+  });
+}
+
 /* ------------------------------ DETALHES DA PÁGINA ------------------------------ */
 
 function formatarTelefone(numero) {
@@ -803,6 +1021,14 @@ function iniciar() {
   $$("[data-controle]").forEach(renderizarControle);
   lerCliente();
   ligarEventos();
+
+  renderizarMosaico();
+  renderizarVitrine();
+  renderizarDepoimentos();
+  renderizarSobre();
+  ligarEventosVitrine();
+  ligarLinksWhatsApp();
+  esconderLinksSemDestino();
 
   $("#ano").textContent = new Date().getFullYear();
   const telefone = $("#rodape-whatsapp");

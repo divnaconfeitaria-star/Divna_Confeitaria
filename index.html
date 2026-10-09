@@ -3,13 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>D'Ivna Confeitaria | Cardápio</title>
+  <title>D'Ivna Confeitaria | Salgados, doces e bolos por encomenda</title>
   <meta name="description" content="Cardápio da D'Ivna Confeitaria: salgados, pão delícia, doces finos, tortas, bolos e mais. Monte seu pedido e finalize pelo WhatsApp.">
   <meta name="theme-color" content="#F9ECEB">
+  <link rel="canonical" href="https://divnaconfeitaria.com.br/">
+
+  <!-- Prévia do link quando ele é compartilhado (WhatsApp, Instagram, Facebook) -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="D'Ivna Confeitaria | Cardápio">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="D'Ivna Confeitaria">
+  <meta property="og:url" content="https://divnaconfeitaria.com.br/">
+  <meta property="og:title" content="D'Ivna Confeitaria | Salgados, doces e bolos por encomenda">
   <meta property="og:description" content="Salgados, doces finos, tortas e bolos para os seus momentos especiais. Peça pelo WhatsApp.">
+  <meta property="og:image" content="https://divnaconfeitaria.com.br/assets/og-imagem.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logo da D'Ivna Confeitaria">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Ficha da confeitaria para o Google. EDITAR: o telefone acompanha WHATSAPP_NUMBER (script.js) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "name": "D'Ivna Confeitaria",
+    "url": "https://divnaconfeitaria.com.br/",
+    "logo": "https://divnaconfeitaria.com.br/assets/logo.jpg",
+    "image": "https://divnaconfeitaria.com.br/assets/og-imagem.jpg",
+    "telephone": "+55 71 98231-0364",
+    "sameAs": ["https://www.instagram.com/divnaconfeitaria"]
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +55,10 @@
         <span class="marca-script">Confeitaria</span>
       </a>
       <nav class="nav" aria-label="Principal">
-        <a class="link" href="#inicio">Início</a>
+        <a class="link" href="#trabalhos">Trabalhos</a>
         <a class="link" href="#cardapio">Cardápio</a>
+        <a class="link" href="#depoimentos">Depoimentos</a>
+        <a class="link" href="#sobre">Sobre</a>
         <button type="button" class="btn-carrinho" id="btn-carrinho" aria-label="Abrir carrinho">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>
           <span class="texto">Carrinho</span>
@@ -45,15 +72,64 @@
     <!-- ===================== HERO ===================== -->
     <section class="hero" id="inicio" aria-labelledby="titulo-hero">
       <div class="hero-interno">
-        <img class="logo" src="assets/logo.jpg" width="640" height="530" alt="D'Ivna Confeitaria">
-        <h1 id="titulo-hero" class="revelar">Pequenos prazeres, <em>feitos com carinho.</em></h1>
-        <!-- EDITAR: texto sobre a confeitaria -->
-        <p class="hero-texto revelar" style="transition-delay:.08s">Salgados, doces finos, tortas e bolos para os seus momentos especiais. Escolha no cardápio, monte seu pedido e finalize direto pelo WhatsApp.</p>
-        <a class="btn-principal revelar" style="transition-delay:.16s" href="#cardapio">
-          <span>Ver cardápio</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
-        <p class="hero-nota revelar" style="transition-delay:.24s">A confeiteira confirma seu pedido pelo WhatsApp.</p>
+        <div class="hero-conteudo">
+          <img class="logo" src="assets/logo.jpg" width="640" height="530" alt="D'Ivna Confeitaria">
+          <h1 id="titulo-hero" class="revelar">Tudo feito com <em>Amor.</em></h1>
+          <!-- EDITAR: texto sobre a confeitaria -->
+          <p class="hero-texto revelar" style="transition-delay:.08s">Salgados, doces finos, tortas e bolos para os seus momentos especiais. Escolha no cardápio, monte seu pedido e finalize direto pelo WhatsApp.</p>
+          <div class="hero-botoes revelar" style="transition-delay:.16s">
+            <a class="btn-principal" href="#cardapio">
+              <span>Ver cardápio</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+            </a>
+            <a class="btn-secundario" href="#trabalhos">Nossos trabalhos</a>
+          </div>
+          <p class="hero-nota revelar" style="transition-delay:.24s">A confeiteira confirma seu pedido pelo WhatsApp.</p>
+        </div>
+
+        <!-- Montado pelo script.js com as fotos marcadas como destaque em galeria.js -->
+        <div class="hero-mosaico" id="hero-mosaico" hidden></div>
+      </div>
+    </section>
+
+    <!-- ===================== NOSSOS TRABALHOS (galeria.js) ===================== -->
+    <section class="vitrine" id="trabalhos" aria-labelledby="titulo-vitrine" hidden>
+      <div class="secao-interna">
+        <div class="cabecalho-secao revelar">
+          <span class="eyebrow">Nossos trabalhos</span>
+          <h2 class="titulo-secao" id="titulo-vitrine">Um pouco do que sai da nossa cozinha</h2>
+          <p class="subtitulo-secao">Encomendas que já fizeram parte de muitas comemorações. Toque em uma foto para ampliar.</p>
+        </div>
+        <div class="filtros" id="filtros-galeria" role="group" aria-label="Filtrar fotos por tipo" hidden></div>
+        <ul class="galeria" id="galeria"></ul>
+        <button type="button" class="btn-secundario galeria-mais" id="galeria-mais" hidden>Ver mais fotos</button>
+      </div>
+    </section>
+
+    <!-- ===================== COMO FUNCIONA ===================== -->
+    <section class="passos" id="como-funciona" aria-labelledby="titulo-passos">
+      <div class="secao-interna">
+        <div class="cabecalho-secao revelar">
+          <span class="eyebrow">Como funciona</span>
+          <h2 class="titulo-secao" id="titulo-passos">Pedir é simples</h2>
+        </div>
+        <ol class="lista-passos">
+          <li class="passo revelar">
+            <span class="passo-num" aria-hidden="true">1</span>
+            <h3>Escolha no cardápio</h3>
+            <p>Veja os sabores e os preços e coloque no carrinho o que quiser.</p>
+          </li>
+          <li class="passo revelar" style="transition-delay:.08s">
+            <span class="passo-num" aria-hidden="true">2</span>
+            <h3>Finalize pelo WhatsApp</h3>
+            <p>A mensagem já vai pronta, com os itens, o total e o número do pedido.</p>
+          </li>
+          <li class="passo revelar" style="transition-delay:.16s">
+            <span class="passo-num" aria-hidden="true">3</span>
+            <h3>A confeiteira confirma</h3>
+            <p>Vocês combinam a data, a retirada ou entrega e o pagamento.</p>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -74,20 +150,147 @@
         <p class="aviso-min" id="aviso-min" hidden></p>
       </div>
     </section>
+
+    <!-- ===================== DEPOIMENTOS (depoimentos.js) ===================== -->
+    <section class="depoimentos" id="depoimentos" aria-labelledby="titulo-depoimentos" hidden>
+      <div class="secao-interna">
+        <div class="cabecalho-secao revelar">
+          <span class="eyebrow">Depoimentos</span>
+          <h2 class="titulo-secao" id="titulo-depoimentos">Quem provou, recomenda</h2>
+        </div>
+        <div class="lista-depoimentos" id="lista-depoimentos" role="region" aria-label="Depoimentos de clientes" tabindex="0"></div>
+      </div>
+    </section>
+
+    <!-- ===================== FESTAS E EVENTOS ===================== -->
+    <section class="festas" id="festas" aria-labelledby="titulo-festas">
+      <span class="festas-fundo" aria-hidden="true">Celebre</span>
+      <div class="festas-interno revelar">
+        <span class="eyebrow">Festas e eventos</span>
+        <h2 class="titulo-secao" id="titulo-festas">Vai comemorar? Conte com a gente.</h2>
+        <p>Salgados, doces finos, tortas e bolos na medida da sua festa. Conte a data, o tipo de evento e quantos convidados vêm, e a confeiteira prepara um orçamento para você.</p>
+        <!-- EDITAR: ocasiões atendidas -->
+        <ul class="ocasioes">
+          <li>Aniversários</li>
+          <li>Chás</li>
+          <li>Batizados</li>
+          <li>Casamentos</li>
+          <li>Confraternizações</li>
+        </ul>
+        <a class="btn-claro" href="https://wa.me/5571982310364" data-whatsapp="Gostaria de um orçamento para uma festa." target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+          <span>Pedir orçamento pelo WhatsApp</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===================== SOBRE ===================== -->
+    <section class="sobre" id="sobre" aria-labelledby="titulo-sobre">
+      <div class="sobre-interno">
+        <!-- A foto vem de FOTO_SOBRE, em galeria.js -->
+        <div class="sobre-foto revelar" id="sobre-foto"></div>
+        <div class="sobre-texto revelar" style="transition-delay:.08s">
+          <span class="eyebrow">Sobre</span>
+          <h2 class="titulo-secao" id="titulo-sobre">Quem faz a D'Ivna</h2>
+          <!-- EDITAR: história da confeiteira (troque os dois parágrafos destacados) -->
+          <p><span class="completar">Conte aqui a história da confeiteira: como começou, há quanto tempo cozinha e o que mais gosta de preparar.</span></p>
+          <p><span class="completar">Um segundo parágrafo curto sobre o que torna as encomendas especiais: receitas da família, ingredientes escolhidos, capricho na apresentação.</span></p>
+          <p class="assinatura">D'Ivna Confeitaria</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PERGUNTAS FREQUENTES ===================== -->
+    <section class="duvidas" id="duvidas" aria-labelledby="titulo-duvidas">
+      <div class="secao-interna secao-estreita">
+        <div class="cabecalho-secao revelar">
+          <span class="eyebrow">Dúvidas</span>
+          <h2 class="titulo-secao" id="titulo-duvidas">Perguntas frequentes</h2>
+        </div>
+        <!-- EDITAR: respostas destacadas precisam ser preenchidas pela confeiteira -->
+        <div class="lista-duvidas">
+          <details class="duvida">
+            <summary>Como faço meu pedido?</summary>
+            <div class="duvida-resposta">
+              <p>Escolha os itens no cardápio, abra o carrinho, informe seu nome e toque em "Finalizar pelo WhatsApp". A mensagem já vai pronta para a confeiteira, que confirma tudo com você.</p>
+            </div>
+          </details>
+          <details class="duvida">
+            <summary>Existe quantidade mínima?</summary>
+            <div class="duvida-resposta">
+              <p>As forminhas convencionais têm quantidade mínima de 30 unidades. Quando um item tem mínimo, isso aparece ao lado dele no cardápio.</p>
+            </div>
+          </details>
+          <details class="duvida">
+            <summary>Com quanto tempo de antecedência devo encomendar?</summary>
+            <div class="duvida-resposta">
+              <p><span class="completar">Informe a antecedência mínima para salgados e doces e para tortas e bolos.</span></p>
+            </div>
+          </details>
+          <details class="duvida">
+            <summary>Vocês fazem entrega?</summary>
+            <div class="duvida-resposta">
+              <p><span class="completar">Informe se há entrega, para quais bairros ou cidades e se tem taxa, ou se é só retirada (e onde).</span></p>
+            </div>
+          </details>
+          <details class="duvida">
+            <summary>Quais são as formas de pagamento?</summary>
+            <div class="duvida-resposta">
+              <p><span class="completar">Informe as formas aceitas (Pix, cartão, dinheiro) e se é preciso pagar um sinal para confirmar a encomenda.</span></p>
+            </div>
+          </details>
+          <details class="duvida">
+            <summary>Vocês fazem doces personalizados?</summary>
+            <div class="duvida-resposta">
+              <p>Sim, sob consulta. No cardápio, abra "Doces", vá até "Personalizados" e toque em "Consultar" para falar com a confeiteira.</p>
+            </div>
+          </details>
+        </div>
+        <p class="duvidas-contato revelar">Ficou alguma dúvida? <a href="https://wa.me/5571982310364" data-whatsapp="Tenho uma dúvida sobre as encomendas." target="_blank" rel="noopener">Fale com a gente pelo WhatsApp</a>.</p>
+      </div>
+    </section>
   </main>
 
   <!-- ===================== RODAPÉ ===================== -->
   <footer class="rodape">
     <div class="rodape-interno">
-      <div class="marca marca-rodape">
-        <span class="marca-nome">D'Ivna</span>
-        <span class="marca-script">Confeitaria</span>
+      <div class="rodape-marca">
+        <div class="marca marca-rodape">
+          <span class="marca-nome">D'Ivna</span>
+          <span class="marca-script">Confeitaria</span>
+        </div>
+        <p>Salgados, doces finos, tortas e bolos por encomenda.</p>
       </div>
-      <ul class="rodape-contatos">
-        <li><a id="rodape-whatsapp" href="https://wa.me/5571982310364" target="_blank" rel="noopener">(71) 98231-0364</a></li>
-        <li><a href="https://www.instagram.com/divnaconfeitaria" target="_blank" rel="noopener">@divnaconfeitaria</a></li>
-        <li>Pedidos confirmados pelo WhatsApp</li>
-      </ul>
+
+      <div class="rodape-coluna">
+        <h2 class="rodape-titulo">Contato</h2>
+        <ul class="rodape-lista">
+          <li><a id="rodape-whatsapp" href="https://wa.me/5571982310364" target="_blank" rel="noopener">(71) 98231-0364</a></li>
+          <li><a href="https://www.instagram.com/divnaconfeitaria" target="_blank" rel="noopener">@divnaconfeitaria</a></li>
+        </ul>
+      </div>
+
+      <div class="rodape-coluna">
+        <h2 class="rodape-titulo">Atendimento</h2>
+        <!-- EDITAR: horário e região de entrega/retirada -->
+        <ul class="rodape-lista">
+          <li><span class="completar">Dias e horário de atendimento</span></li>
+          <li><span class="completar">Região de entrega ou local de retirada</span></li>
+          <li>Pedidos confirmados pelo WhatsApp</li>
+        </ul>
+      </div>
+
+      <nav class="rodape-coluna" aria-label="Rodapé">
+        <h2 class="rodape-titulo">Navegue</h2>
+        <ul class="rodape-lista">
+          <li><a href="#trabalhos">Nossos trabalhos</a></li>
+          <li><a href="#cardapio">Cardápio</a></li>
+          <li><a href="#depoimentos">Depoimentos</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#duvidas">Perguntas frequentes</a></li>
+        </ul>
+      </nav>
+
       <p class="copy">© <span id="ano">2026</span> D'Ivna Confeitaria</p>
     </div>
   </footer>
@@ -142,11 +345,33 @@
     </div>
   </aside>
 
+  <!-- ===================== FOTO AMPLIADA (vitrine) ===================== -->
+  <dialog class="foto-ampliada" id="foto-ampliada" aria-labelledby="foto-legenda">
+    <figure>
+      <img id="foto-img" src="data:," alt="">
+      <figcaption>
+        <span id="foto-legenda"></span>
+        <span class="foto-contagem" id="foto-contagem"></span>
+      </figcaption>
+    </figure>
+    <button type="button" class="btn-icone foto-fechar" id="foto-fechar" aria-label="Fechar foto">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button type="button" class="btn-icone foto-nav foto-anterior" id="foto-anterior" aria-label="Foto anterior">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <button type="button" class="btn-icone foto-nav foto-proxima" id="foto-proxima" aria-label="Próxima foto">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </dialog>
+
   <!-- Avisos para leitores de tela quando o carrinho muda -->
   <div class="sr-only" id="anuncio" aria-live="polite"></div>
 
   <script src="config.js"></script>
   <script src="cardapio.js"></script>
+  <script src="galeria.js"></script>
+  <script src="depoimentos.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

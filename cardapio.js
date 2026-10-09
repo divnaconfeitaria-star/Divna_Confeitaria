@@ -19,6 +19,7 @@
                unidade   texto depois do preço (ex.: "a unidade")
                prefixoPedido     texto que antecede o nome do item no pedido
                prefixoSubtitulo  texto antes de "a partir de" (ex.: "Grande e coberto · ")
+               foto      foto redonda no lugar da cereja (ex.: "assets/galeria/salgados.jpg")
    seção:      titulo    título do grupo (pode ser null)
                preco     preço padrão dos itens do grupo
                sufixoPreco  troca o texto depois do preço (ex.: "cada")
