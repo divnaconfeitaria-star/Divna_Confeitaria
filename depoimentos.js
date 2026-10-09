@@ -1,38 +1,27 @@
 /* =====================================================================
    DEPOIMENTOS DE CLIENTES
-   Aparecem na seção "Quem provou, recomenda". O site se monta sozinho.
+   Aparecem na seção "Quem provou, recomenda".
 
-   Use só depoimentos de verdade (mensagens do WhatsApp, comentários no
-   Instagram...) e peça autorização para mostrar o nome. O primeiro nome
-   já basta (ex.: "Carla").
+   DE ONDE VÊM
+   1. Do formulário do site: o cliente escreve, o depoimento chega ao painel
+      (pedidos.html, aba "Depoimentos") como PENDENTE e só aparece no site
+      depois que a confeiteira aprovar. É o caminho principal.
+      Precisa do banco configurado (supabase/depoimentos.sql).
+   2. Desta lista, para depoimentos que você queira colocar à mão (por exemplo,
+      uma mensagem de WhatsApp ou um comentário do Instagram). Peça autorização
+      para mostrar o nome; o primeiro nome já basta.
 
-   COMO ADICIONAR
+   COMO ADICIONAR À MÃO
    Copie o modelo e cole dentro da lista, separando com vírgula:
-     { nome: "Carla", ocasiao: "Aniversário de 15 anos", texto: "Os doces fizeram o maior sucesso!" },
+     { nome: "Carla", ocasiao: "Aniversário de 15 anos", texto: "Os doces fizeram o maior sucesso!", nota: 5 },
 
    CAMPOS
-   nome     quem escreveu
+   nome     quem escreveu (se vazio, aparece "Cliente")
    ocasiao  opcional: festa ou motivo do pedido
    texto    o depoimento (de preferência curto: até umas 3 linhas)
-
-   Se a lista ficar vazia ( [] ), a seção some do site.
+   nota     opcional: de 1 a 5 estrelas
    ===================================================================== */
 
-// EDITAR: trocar os três modelos abaixo por depoimentos reais.
 const DEPOIMENTOS = [
-  {
-    nome: "Nome do cliente",
-    ocasiao: "Ocasião do pedido",
-    texto: "Espaço para o depoimento de um cliente de verdade, copiado de uma mensagem do WhatsApp ou do Instagram."
-  },
-  {
-    nome: "Nome do cliente",
-    ocasiao: "Ocasião do pedido",
-    texto: "Outro depoimento real entra aqui. Frases curtas funcionam melhor."
-  },
-  {
-    nome: "Nome do cliente",
-    ocasiao: "Ocasião do pedido",
-    texto: "Mais um depoimento real. Com três ou mais, a seção fica bem completa."
-  }
+  // Lista vazia de propósito: os depoimentos entram pelo formulário do site.
 ];

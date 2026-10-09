@@ -313,3 +313,63 @@ body.adm { background: var(--fundo); }
   .adm-acoes .adm-btn-sec { flex: 1; }
   .adm-conta .adm-email { display: none; }
 }
+
+/* ---------- Abas (Pedidos / Depoimentos) ---------- */
+.adm-abas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 4px;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: #fff;
+  width: fit-content;
+  max-width: 100%;
+}
+.adm-aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--texto);
+  transition: background 0.2s, color 0.2s;
+}
+.adm-aba[aria-pressed="true"] { background: var(--cereja); color: #fff; }
+.adm-contador {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--cereja);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}
+.adm-aba[aria-pressed="true"] .adm-contador { background: #fff; color: var(--cereja); }
+
+/* ---------- Depoimentos no painel ---------- */
+.adm-intro { margin: 0 0 18px; color: var(--texto-suave); }
+.adm-chips-dep { margin-bottom: 16px; }
+.adm-dep-texto { margin: 0; font-family: var(--fonte-titulo); font-style: italic; font-size: 20px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.adm-dep-acoes { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px; }
+.adm-ok { border-color: var(--ok); color: var(--ok); }
+.adm-ok:hover { background: var(--ok-suave); }
+.adm-perigo { color: var(--cereja-escura); }
+.adm-selo-dep {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--cereja-suave);
+  color: var(--cereja);
+  font-size: 13px;
+  font-weight: 500;
+}
+.adm-pedido[data-status="entregue"] .adm-selo-dep { background: var(--ok-suave); color: var(--ok); }
+.adm-pedido[data-status="cancelado"] .adm-selo-dep { background: #F1ECEC; color: var(--texto-suave); }

@@ -11,14 +11,19 @@ index.html      site (início, trabalhos, cardápio, depoimentos, festas, sobre,
 style.css       visual (cores, fontes, animações)
 cardapio.js     sabores, categorias e preços  <- o arquivo que você mais vai editar
 galeria.js      fotos da vitrine, do topo da página e da seção "Sobre"
-depoimentos.js  depoimentos de clientes
+depoimentos.js  depoimentos escritos à mão (os do formulário vêm do banco)
 script.js       funcionamento (sanfona, carrinho, WhatsApp, registro do pedido, vitrine)
 config.js       endereço e chave do Supabase  <- preencher uma vez
 pedidos.html    painel privado da confeiteira (login)
 pedidos.css     visual do painel
 pedidos.js      funcionamento do painel
+vercel.json     regras de segurança do site (cabeçalhos), aplicadas pela Vercel
+privacidade.html  política de privacidade (texto-modelo)
+js-ativo.js     marca que o JavaScript está ativo (arquivo separado por causa da regra de segurança)
 supabase/
   pedidos.sql   cria o banco de pedidos e as regras de segurança
+  protecao-contra-spam.sql  limita pedidos falsos em massa (rodar depois do pedidos.sql)
+  depoimentos.sql  cria a tabela de depoimentos dos clientes, com aprovação (rodar depois do pedidos.sql)
 assets/         logo, ícone e imagem de prévia do link (og-imagem.jpg)
   galeria/      fotos dos produtos
 ```
@@ -41,8 +46,10 @@ assets/         logo, ícone e imagem de prévia do link (og-imagem.jpg)
   (o topo do arquivo explica). Foto que ainda não existe aparece como um quadro "foto em breve".
 - **Foto em cada categoria do cardápio:** em `cardapio.js`, acrescente `foto: "assets/galeria/arquivo.jpg"`
   na categoria; ela entra no lugar do ícone de cereja.
-- **Depoimentos:** `depoimentos.js`. Só depoimentos reais, com autorização do cliente.
-  Com a lista vazia, a seção some do site.
+- **Depoimentos:** os clientes escrevem pelo formulário do site (estrelas, texto, nome opcional) e o depoimento chega
+  ao painel, na aba **Depoimentos**, como *Pendente*. Só aparece no site depois que você tocar em **Aprovar**.
+  Para isso funcionar, rode uma vez o arquivo `supabase/depoimentos.sql` no SQL Editor do Supabase.
+  Para colocar um depoimento à mão (de uma mensagem de WhatsApp, por exemplo), use `depoimentos.js`.
 - **História, perguntas frequentes, horário e região de entrega:** `index.html`, procure por `EDITAR`.
   Os textos provisórios aparecem com **fundo amarelo** no site; troque todos antes de publicar
   (para achar: procure `class="completar"`).
@@ -108,6 +115,27 @@ só com o WhatsApp.
 As regras ficam no banco (`supabase/pedidos.sql`), não no código do site:
 visitantes só conseguem **criar** pedido novo (sem escolher data, status nem valor diferente da
 soma dos itens) e não leem nada. Só a conta cadastrada em `admins` vê os pedidos e muda o status.
+
+**Proteção contra pedidos falsos em massa (rode uma vez):** no **SQL Editor** do Supabase, cole todo o
+arquivo `supabase/protecao-contra-spam.sql` e clique em **Run**. Ele limita quantos pedidos novos o
+banco aceita por minuto e por hora, e recusa valor total zerado ou absurdo. Os limites estão no
+próprio arquivo, marcados com `AJUSTE`. Se o banco recusar um pedido, o cliente nem percebe: o
+WhatsApp sempre abre primeiro.
+
+**Regras do site (`vercel.json`):** a Vercel aplica estes cabeçalhos em todas as páginas: o navegador só
+executa scripts que vêm do próprio site, só conversa com o próprio site e com o banco do Supabase,
+e ninguém consegue embutir o site dentro de outra página. O painel `pedidos.html` também pede aos
+buscadores para não aparecer e não fica guardado em cache. **Se um dia você trocar o endereço do
+Supabase em `config.js`, troque também em `vercel.json` (linha `connect-src`)**, senão o navegador
+bloqueia a conexão.
+
+**Cuidados que só você pode ter (fora do código):**
+- Ligue a **verificação em duas etapas** no GitHub, na Vercel, no Registro.br e no Supabase.
+- Use uma senha forte e só sua no painel; não deixe a conta logada em aparelho de outras pessoas.
+- Não escreva scripts soltos dentro do `index.html`: a regra de segurança bloqueia. Coloque o código
+  em arquivo `.js`, como o `js-ativo.js`.
+- A página `privacidade.html` é um texto-modelo. Troque o trecho em amarelo (por quanto tempo os
+  pedidos são guardados) e, se possível, peça para um profissional revisar.
 
 ### Plano grátis
 

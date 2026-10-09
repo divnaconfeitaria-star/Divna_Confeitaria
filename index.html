@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- Marca que o JavaScript está ativo (usado nas animações de entrada) -->
-  <script>document.documentElement.classList.add("js");</script>
+  <script src="js-ativo.js"></script>
 </head>
 <body>
   <a class="pular-link" href="#cardapio">Pular para o cardápio</a>
@@ -185,13 +185,69 @@
     </section>
 
     <!-- ===================== DEPOIMENTOS (depoimentos.js) ===================== -->
-    <section class="depoimentos" id="depoimentos" aria-labelledby="titulo-depoimentos" hidden>
+    <section class="depoimentos" id="depoimentos" aria-labelledby="titulo-depoimentos">
       <div class="secao-interna">
         <div class="cabecalho-secao revelar">
           <span class="eyebrow">Depoimentos</span>
           <h2 class="titulo-secao" id="titulo-depoimentos">Quem provou, recomenda</h2>
         </div>
-        <div class="lista-depoimentos" id="lista-depoimentos" role="region" aria-label="Depoimentos de clientes" tabindex="0"></div>
+
+        <!-- Os depoimentos aprovados vêm do banco (ver depoimentos.sql) e, se houver, de depoimentos.js -->
+        <p class="depoimentos-vazio" id="depoimentos-vazio" hidden>Ainda não há depoimentos por aqui. Que tal ser a primeira pessoa a contar como foi?</p>
+        <div class="lista-depoimentos" id="lista-depoimentos" role="region" aria-label="Depoimentos de clientes" tabindex="0" hidden></div>
+
+        <!-- ===== Formulário: o depoimento só aparece no site depois que a confeiteira aprovar no painel ===== -->
+        <div class="deixe-depoimento revelar">
+          <h3>Já provou? Conte para a gente</h3>
+          <p class="deixe-sub">Escreva do seu jeito. Seu depoimento aparece aqui depois que a Ivna aprovar.</p>
+
+          <form id="form-depoimento" novalidate>
+            <fieldset class="estrelas-grupo">
+              <legend>Sua nota</legend>
+              <div class="estrelas">
+                <input type="radio" name="nota" id="nota-5" value="5" required><label for="nota-5" title="5 estrelas"><span class="sr-only">5 estrelas</span>★</label>
+                <input type="radio" name="nota" id="nota-4" value="4" required><label for="nota-4" title="4 estrelas"><span class="sr-only">4 estrelas</span>★</label>
+                <input type="radio" name="nota" id="nota-3" value="3" required><label for="nota-3" title="3 estrelas"><span class="sr-only">3 estrelas</span>★</label>
+                <input type="radio" name="nota" id="nota-2" value="2" required><label for="nota-2" title="2 estrelas"><span class="sr-only">2 estrelas</span>★</label>
+                <input type="radio" name="nota" id="nota-1" value="1" required><label for="nota-1" title="1 estrela"><span class="sr-only">1 estrela</span>★</label>
+              </div>
+            </fieldset>
+
+            <div class="campo">
+              <label for="dep-texto">Seu depoimento</label>
+              <textarea id="dep-texto" rows="4" maxlength="600" placeholder="Conte como foi: o sabor, o atendimento, a festa..." aria-describedby="dep-erro" required></textarea>
+            </div>
+            <div class="dep-linha">
+              <div class="campo">
+                <label for="dep-nome">Seu nome (opcional)</label>
+                <input type="text" id="dep-nome" maxlength="60" autocomplete="given-name" placeholder="Pode ser só o primeiro nome">
+              </div>
+              <div class="campo">
+                <label for="dep-ocasiao">Ocasião (opcional)</label>
+                <input type="text" id="dep-ocasiao" maxlength="80" placeholder="Aniversário, batizado, café da manhã...">
+              </div>
+            </div>
+
+            <!-- Armadilha para robôs: pessoas não veem nem preenchem -->
+            <div class="armadilha" aria-hidden="true">
+              <label for="dep-armadilha">Deixe este campo vazio</label>
+              <input type="text" id="dep-armadilha" name="endereco_comercial" tabindex="-1" autocomplete="off">
+            </div>
+
+            <label class="consentimento">
+              <input type="checkbox" id="dep-aceite">
+              <span>Concordo que meu depoimento (e o nome, se eu escrever) apareça no site. <a href="privacidade.html">Política de privacidade</a>.</span>
+            </label>
+
+            <p class="erro" id="dep-erro" role="alert" hidden></p>
+            <p class="dep-ok" id="dep-ok" role="status" hidden></p>
+
+            <div class="dep-acoes">
+              <button type="submit" class="btn-principal" id="dep-enviar">Enviar depoimento</button>
+              <a class="link-discreto" href="https://wa.me/5571982310364" data-whatsapp="Gostaria de deixar um depoimento sobre as encomendas." target="_blank" rel="noopener">Prefiro mandar pelo WhatsApp</a>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -224,7 +280,7 @@
       <div class="versiculo-fundo fundo-parallax" id="versiculo-fundo" aria-hidden="true"></div>
       <figure class="versiculo-interno">
         <!-- EDITAR: versículo em destaque (de preferência o preferido da confeiteira) -->
-        <blockquote class="versiculo-texto" id="versiculo-texto"><p>Provai e vede que o Senhor é bom.</p></blockquote>
+        <blockquote class="versiculo-texto" id="versiculo-texto"><p>Provai e vede que o Senhor é bom; Bem-aventurado o homem que nele se refugia.</p></blockquote>
         <figcaption class="versiculo-ref">Salmos 34:8</figcaption>
       </figure>
     </section>
@@ -237,10 +293,11 @@
         <div class="sobre-texto revelar" style="transition-delay:.08s">
           <span class="eyebrow">Sobre</span>
           <h2 class="titulo-secao" id="titulo-sobre">Quem faz a D'Ivna</h2>
-          <!-- EDITAR: história da confeiteira (troque os dois parágrafos destacados) -->
-          <p><span class="completar">Conte aqui a história da confeiteira: como começou, há quanto tempo cozinha e o que mais gosta de preparar.</span></p>
-          <p><span class="completar">Um segundo parágrafo curto sobre o que torna as encomendas especiais: receitas da família, ingredientes escolhidos, capricho na apresentação.</span></p>
-          <p class="assinatura">D'Ivna Confeitaria</p>
+          <!-- EDITAR: texto da confeiteira. Os dois primeiros parágrafos são palavras dela; o terceiro foi escrito para complementar. -->
+          <p>Olá, me chamo Ivna! A confeitaria é um dom que recebi de Deus e com muito amor coloco em prática todos os dias.</p>
+          <p>Meu amor pela confeitaria nasceu do desejo de levar afeto, qualidade e doçura para a mesa de cada família. Para mim, cada ingrediente é escolhido a dedo e cada produção é única, feita sob medida para celebrar os seus momentos mais especiais.</p>
+          <p>Dos salgados aos bolos, dos doces finos às cestas de café da manhã, tudo é feito por encomenda, com o cuidado de quem cozinha pensando em quem vai saborear.</p>
+          <p class="assinatura">Ivna</p>
         </div>
       </div>
     </section>
@@ -321,8 +378,6 @@
         <h2 class="rodape-titulo">Atendimento</h2>
         <!-- EDITAR: horário e região de entrega/retirada -->
         <ul class="rodape-lista">
-          <li><span class="completar">Dias e horário de atendimento</span></li>
-          <li><span class="completar">Região de entrega ou local de retirada</span></li>
           <li>Pedidos confirmados pelo WhatsApp</li>
         </ul>
       </div>
@@ -335,6 +390,7 @@
           <li><a href="#depoimentos">Depoimentos</a></li>
           <li><a href="#sobre">Sobre</a></li>
           <li><a href="#duvidas">Perguntas frequentes</a></li>
+          <li><a href="privacidade.html">Política de privacidade</a></li>
         </ul>
       </nav>
 
@@ -372,8 +428,20 @@
       </div>
 
       <div class="campo">
+        <label for="campo-ocasiao">Ocasião do pedido</label>
+        <input type="text" id="campo-ocasiao" name="ocasiao" maxlength="80" placeholder="Aniversário, batizado, café da manhã..." aria-describedby="erro-ocasiao" aria-invalid="false">
+        <p class="erro" id="erro-ocasiao" role="alert" hidden>Informe a ocasião para continuar.</p>
+      </div>
+
+      <div class="campo">
         <label for="campo-obs">Observações (opcional)</label>
         <textarea id="campo-obs" name="observacoes" rows="3" maxlength="1000" placeholder="Data de retirada, recado, alergias..."></textarea>
+      </div>
+
+      <!-- Armadilha para robôs: pessoas não veem nem preenchem. Se vier preenchido, o pedido não é salvo no banco (o WhatsApp abre normalmente). -->
+      <div class="armadilha" aria-hidden="true">
+        <label for="campo-armadilha">Deixe este campo vazio</label>
+        <input type="text" id="campo-armadilha" name="apelido_da_loja" tabindex="-1" autocomplete="off">
       </div>
     </div>
 
@@ -387,6 +455,7 @@
         <span>Finalizar pelo WhatsApp</span>
       </button>
       <p class="nota-painel">Você será levado ao WhatsApp, onde a confeiteira confirma seu pedido.</p>
+      <p class="nota-painel">Guardamos seu nome e os itens do pedido para organizar a entrega. <a href="privacidade.html">Política de privacidade</a>.</p>
       <p class="nota-painel" id="whatsapp-fallback" hidden>O WhatsApp não abriu? <a id="link-fallback" href="#" target="_blank" rel="noopener">Toque aqui</a>.</p>
       <button type="button" class="link-discreto" id="btn-limpar" hidden>Limpar carrinho</button>
     </div>

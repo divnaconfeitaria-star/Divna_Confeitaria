@@ -1588,13 +1588,13 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   font-family: var(--fonte-titulo);
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(38px, 6.4vw, 78px);
+  font-size: clamp(32px, 4.8vw, 58px); /* o versículo completo é mais longo: letra um pouco menor */
   line-height: 1.12;
   color: var(--texto);
 }
 .versiculo-texto p::before { content: "“"; color: var(--rosa-taupe); }
 .versiculo-texto p::after { content: "”"; color: var(--rosa-taupe); }
-.palavra-verso { transition: opacity 0.2s linear; }
+.palavra-verso { white-space: nowrap; transition: opacity 0.2s linear; } /* "Bem-aventurado" não quebra no hífen */
 .versiculo-ref {
   font-size: 13px;
   letter-spacing: 0.3em;
@@ -1614,6 +1614,114 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
 @media (max-width: 900px) {
   .nav .link { display: none; }
 }
+
+/* ---------- Depoimentos: estrelas, formulário ---------- */
+.depoimentos-vazio { margin: 0; text-align: center; color: var(--texto-suave); font-size: 17px; }
+.depoimento-estrelas { margin-top: -6px; font-size: 18px; letter-spacing: 0.12em; color: var(--cereja); }
+
+.deixe-depoimento {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 34px clamp(18px, 4vw, 38px) 38px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-card);
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+}
+.deixe-depoimento h3 {
+  margin: 0 0 6px;
+  font-family: var(--fonte-titulo);
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 34px);
+  line-height: 1.15;
+}
+.deixe-sub { margin: 0 0 24px; color: var(--texto-suave); }
+#form-depoimento { display: flex; flex-direction: column; gap: 18px; }
+
+.estrelas-grupo { margin: 0; padding: 0; border: 0; }
+.estrelas-grupo legend { margin-bottom: 4px; padding: 0; font-size: 14px; font-weight: 500; }
+/* A ordem no HTML é 5..1; "row-reverse" mostra 1..5 e deixa as estrelas anteriores acenderem juntas */
+.estrelas { display: inline-flex; flex-direction: row-reverse; gap: 2px; }
+.estrelas input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.estrelas label {
+  padding: 2px 3px;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--rosa-seda);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+}
+.estrelas label:hover { transform: scale(1.12); }
+.estrelas label:hover,
+.estrelas label:hover ~ label,
+.estrelas input:checked ~ label { color: var(--cereja); }
+.estrelas input:focus-visible + label { outline: 3px solid var(--cereja); outline-offset: 2px; border-radius: 8px; }
+
+.dep-linha { display: grid; gap: 18px; }
+@media (min-width: 600px) { .dep-linha { grid-template-columns: 1fr 1fr; } }
+
+.consentimento {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--texto-suave);
+}
+.consentimento input { flex: none; width: 20px; height: 20px; margin-top: 2px; accent-color: var(--cereja); }
+.consentimento a { color: var(--cereja); text-decoration: underline; }
+
+.dep-ok {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #EDF4EE;
+  color: #2F5D3A;
+  font-size: 15px;
+}
+.dep-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+/* Sem banco configurado: só o botão do WhatsApp */
+#form-depoimento.sem-banco > *:not(.dep-acoes) { display: none; }
+#form-depoimento.sem-banco #dep-enviar { display: none; }
+@media (max-width: 560px) { .dep-acoes .btn-principal { width: 100%; } }
+
+/* Campo-armadilha contra robôs: fora da tela, invisível para pessoas e leitores de tela */
+.armadilha {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Páginas de texto (privacidade) */
+.pagina-texto {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px clamp(16px, 5vw, 32px) 96px;
+  line-height: 1.75;
+  color: var(--texto-suave);
+}
+.pagina-texto .eyebrow { display: block; margin-bottom: 8px; }
+.pagina-texto .titulo-secao { margin-bottom: 8px; color: var(--texto); }
+.pagina-texto h2 {
+  margin: 40px 0 8px;
+  font-family: var(--fonte-titulo);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--texto);
+}
+.pagina-texto p { margin: 0 0 14px; }
+.pagina-texto ul { margin: 0 0 14px; padding-left: 22px; }
+.pagina-texto li { margin-bottom: 6px; }
+.pagina-texto a:not(.btn-secundario) { color: var(--cereja); text-decoration: underline; }
+.pagina-texto strong { color: var(--texto); font-weight: 500; }
+.pagina-data { font-size: 14px; margin-bottom: 28px !important; }
+.pagina-texto .btn-secundario { margin-top: 24px; }
+.rodape-simples { padding-top: 32px; padding-bottom: 32px; }
+.rodape-simples .copy { border: 0; padding-top: 0; }
 
 /* ---------- Celular pequeno ---------- */
 @media (max-width: 560px) {

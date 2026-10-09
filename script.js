@@ -125,6 +125,7 @@ function lerCliente() {
   try {
     const cliente = JSON.parse(localStorage.getItem(CHAVE_CLIENTE) || "{}");
     $("#campo-nome").value = cliente.nome || "";
+    $("#campo-ocasiao").value = cliente.ocasiao || "";
     $("#campo-obs").value = cliente.obs || "";
   } catch (erro) {
     /* ignora */
@@ -135,7 +136,7 @@ function salvarCliente() {
   try {
     localStorage.setItem(
       CHAVE_CLIENTE,
-      JSON.stringify({ nome: $("#campo-nome").value, obs: $("#campo-obs").value })
+      JSON.stringify({ nome: $("#campo-nome").value, ocasiao: $("#campo-ocasiao").value, obs: $("#campo-obs").value })
     );
   } catch (erro) {
     /* ignora */
@@ -500,6 +501,7 @@ function prenderFoco(e) {
 
 function montarMensagem(codigo) {
   const nome = $("#campo-nome").value.trim();
+  const ocasiao = $("#campo-ocasiao").value.trim();
   const obs = $("#campo-obs").value.trim();
   const linhas = idsNoCarrinho().map((id) => {
     const item = ITENS[id];
@@ -514,6 +516,7 @@ function montarMensagem(codigo) {
     "",
     `Total: ${dinheiro(totalCentavos())}`,
     `Nome: ${nome}`,
+    `Ocasião: ${ocasiao}`,
     `Observações: ${obs || "—"}`
   ].join("\n");
 }
@@ -572,9 +575,15 @@ function guardarUltimoPedido(pedido) {
  * sem mudar nada (o WhatsApp não abriu, toque duplo...), reaproveita o mesmo
  * número, e o banco recusa a cópia sozinho: o painel não mostra pedido repetido.
  */
+const INTERVALO_ENTRE_PEDIDOS_MS = 5000;
+let ultimoPedidoNovoEm = 0;
+
 function prepararPedido() {
   const nome = $("#campo-nome").value.trim().slice(0, 80);
-  const obs = $("#campo-obs").value.trim().slice(0, 1000);
+  // O banco tem um campo só para observações: a ocasião vai na primeira linha dele.
+  const ocasiao = $("#campo-ocasiao").value.trim().slice(0, 80);
+  const obsDigitada = $("#campo-obs").value.trim();
+  const obs = [`Ocasião: ${ocasiao}`, obsDigitada].filter(Boolean).join("\n").slice(0, 1000);
   const itens = idsNoCarrinho().map((id) => ({
     nome: ITENS[id].nomePedido,
     qtd: carrinho[id],
@@ -585,6 +594,10 @@ function prepararPedido() {
   const ultimo = lerUltimoPedido();
   const recente = ultimo && Date.now() - Number(ultimo.criado || 0) < JANELA_REPETIDO_MS;
   if (recente && ultimo.assinatura === assinatura && ultimo.id && ultimo.codigo) return ultimo;
+
+  // Pedido NOVO só a cada 5 segundos neste aparelho (freio simples contra robôs; o WhatsApp abre igual).
+  if (Date.now() - ultimoPedidoNovoEm < INTERVALO_ENTRE_PEDIDOS_MS) return null;
+  ultimoPedidoNovoEm = Date.now();
 
   const pedido = {
     id: novoId(),
@@ -637,6 +650,11 @@ function abrirLink(url) {
   a.remove();
 }
 
+function mostrarErroOcasiao(mostrar) {
+  $("#erro-ocasiao").hidden = !mostrar;
+  $("#campo-ocasiao").setAttribute("aria-invalid", mostrar ? "true" : "false");
+}
+
 function mostrarErroNome(mostrar) {
   $("#erro-nome").hidden = !mostrar;
   $("#campo-nome").setAttribute("aria-invalid", mostrar ? "true" : "false");
@@ -663,9 +681,17 @@ function finalizarPedido() {
     return;
   }
   mostrarErroNome(false);
+  if (!$("#campo-ocasiao").value.trim()) {
+    mostrarErroOcasiao(true);
+    $("#campo-ocasiao").focus();
+    return;
+  }
+  mostrarErroOcasiao(false);
   salvarCliente();
 
-  const pedido = bancoAtivo() ? prepararPedido() : null;
+  // Robôs preenchem o campo-armadilha: nesse caso o pedido não vai para o banco (o WhatsApp abre igual).
+  const pareceRobo = $("#campo-armadilha").value.trim() !== "";
+  const pedido = bancoAtivo() && !pareceRobo ? prepararPedido() : null;
   const url = linkWhatsApp(montarMensagem(pedido ? pedido.codigo : null));
   abrirLink(url); // primeiro o WhatsApp, sempre
 
@@ -744,6 +770,10 @@ function ligarEventos() {
 
   $("#campo-nome").addEventListener("input", () => {
     if ($("#campo-nome").value.trim()) mostrarErroNome(false);
+    salvarCliente();
+  });
+  $("#campo-ocasiao").addEventListener("input", () => {
+    if ($("#campo-ocasiao").value.trim()) mostrarErroOcasiao(false);
     salvarCliente();
   });
   $("#campo-obs").addEventListener("input", salvarCliente);
@@ -1149,22 +1179,152 @@ function ligarEventosVitrine() {
 
 /* ------------------------- DEPOIMENTOS E SOBRE ------------------------- */
 
-function renderizarDepoimentos() {
-  const lista = (typeof DEPOIMENTOS !== "undefined" && Array.isArray(DEPOIMENTOS) ? DEPOIMENTOS : [])
-    .filter((d) => d && String(d.texto || "").trim());
-  if (!lista.length) return; // sem depoimentos, a seção continua escondida
+/* ----------------- DEPOIMENTOS: lista aprovada + formulário do cliente -----------------
+   Os depoimentos enviados pelo formulário ficam "pendentes" no banco e só aparecem aqui
+   depois que a confeiteira aprova no painel (supabase/depoimentos.sql). */
 
-  $("#lista-depoimentos").innerHTML = lista
-    .map((d, i) =>
-      `<figure class="depoimento revelar" style="transition-delay:${Math.min(i, 2) * 0.08}s">` +
-      `<span class="depoimento-aspas" aria-hidden="true">“</span>` +
-      `<blockquote><p>${esc(String(d.texto).trim())}</p></blockquote>` +
-      `<figcaption><span class="depoimento-nome">${esc(d.nome || "Cliente")}</span>` +
-      (d.ocasiao ? `<span class="depoimento-ocasiao">${esc(d.ocasiao)}</span>` : "") +
-      `</figcaption></figure>`
-    )
-    .join("");
-  $("#depoimentos").hidden = false;
+const CHAVE_ULTIMO_DEPOIMENTO = "divna_ultimo_depoimento";
+const ESPERA_ENTRE_DEPOIMENTOS_MS = 60 * 1000;
+const MAX_DEPOIMENTOS_NA_TELA = 12;
+// Mesma regra do banco: sem endereços de internet no texto.
+const TEM_LINK = /(https?:\/\/|www\.|\.com\b|\.br\b)/i;
+
+function estrelasDaNota(nota) {
+  const n = Math.round(Number(nota));
+  return n >= 1 && n <= 5 ? "★".repeat(n) + "☆".repeat(5 - n) : "";
+}
+
+function templateDepoimento(d, i) {
+  const estrelas = estrelasDaNota(d.nota);
+  return (
+    `<figure class="depoimento revelar" style="transition-delay:${Math.min(i, 2) * 0.08}s">` +
+    `<span class="depoimento-aspas" aria-hidden="true">“</span>` +
+    (estrelas ? `<span class="depoimento-estrelas" role="img" aria-label="Nota ${Math.round(Number(d.nota))} de 5">${estrelas}</span>` : "") +
+    `<blockquote><p>${esc(String(d.texto).trim())}</p></blockquote>` +
+    `<figcaption><span class="depoimento-nome">${esc(String(d.nome || "").trim() || "Cliente")}</span>` +
+    (d.ocasiao ? `<span class="depoimento-ocasiao">${esc(d.ocasiao)}</span>` : "") +
+    `</figcaption></figure>`
+  );
+}
+
+function mostrarDepoimentos(lista) {
+  const area = $("#lista-depoimentos");
+  area.innerHTML = lista.map(templateDepoimento).join("");
+  area.hidden = lista.length === 0;
+  $("#depoimentos-vazio").hidden = lista.length > 0;
+  iniciarEntradaSuave();
+}
+
+// Depoimentos escritos à mão em depoimentos.js + os já aprovados no banco
+async function carregarDepoimentos() {
+  const proprios = (typeof DEPOIMENTOS !== "undefined" && Array.isArray(DEPOIMENTOS) ? DEPOIMENTOS : [])
+    .filter((d) => d && String(d.texto || "").trim());
+  mostrarDepoimentos(proprios);
+  if (!bancoAtivo()) return;
+
+  try {
+    const base = SUPABASE_URL.trim().replace(/\/+$/, "");
+    const resposta = await fetch(
+      `${base}/rest/v1/depoimentos?select=nome,ocasiao,texto,nota,criado_em&order=criado_em.desc&limit=${MAX_DEPOIMENTOS_NA_TELA}`,
+      { headers: cabecalhosBanco() }
+    );
+    if (!resposta.ok) return; // sem banco pronto: segue só com os da lista
+    const doBanco = await resposta.json();
+    if (Array.isArray(doBanco)) mostrarDepoimentos([...proprios, ...doBanco].slice(0, MAX_DEPOIMENTOS_NA_TELA));
+  } catch (erro) {
+    /* sem conexão: segue só com os da lista */
+  }
+}
+
+function ligarFormularioDepoimento() {
+  const form = $("#form-depoimento");
+  const mostrarErro = (texto) => { $("#dep-erro").textContent = texto; $("#dep-erro").hidden = !texto; };
+  const mostrarOk = (texto) => { $("#dep-ok").textContent = texto; $("#dep-ok").hidden = !texto; };
+
+  // Sem banco configurado, só o botão do WhatsApp fica disponível
+  if (!bancoAtivo()) {
+    form.classList.add("sem-banco");
+    return;
+  }
+
+  const lerEspera = () => {
+    try { return Number(localStorage.getItem(CHAVE_ULTIMO_DEPOIMENTO) || 0); } catch (e) { return 0; }
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    mostrarErro("");
+    mostrarOk("");
+
+    const texto = $("#dep-texto").value.trim();
+    const nome = $("#dep-nome").value.trim().slice(0, 60);
+    const ocasiao = $("#dep-ocasiao").value.trim().slice(0, 80);
+    const marcada = form.querySelector('input[name="nota"]:checked');
+    const nota = marcada ? Number(marcada.value) : null;
+
+    if (!nota) {
+      mostrarErro("Escolha uma nota de 1 a 5 estrelas.");
+      form.querySelector(".estrelas-grupo").scrollIntoView({ block: "center", behavior: reduzMovimento() ? "auto" : "smooth" });
+      $("#nota-5").focus({ preventScroll: true });
+      return;
+    }
+    if (texto.length < 10) {
+      mostrarErro("Conte um pouquinho mais: o depoimento precisa ter pelo menos 10 letras.");
+      $("#dep-texto").focus();
+      return;
+    }
+    if (TEM_LINK.test(`${nome} ${ocasiao} ${texto}`)) {
+      mostrarErro("Por segurança, não aceitamos endereços de internet no depoimento.");
+      $("#dep-texto").focus();
+      return;
+    }
+    if (!$("#dep-aceite").checked) {
+      mostrarErro("Marque a caixinha para autorizar que o depoimento apareça no site.");
+      $("#dep-aceite").focus();
+      return;
+    }
+    if (Date.now() - lerEspera() < ESPERA_ENTRE_DEPOIMENTOS_MS) {
+      mostrarErro("Você acabou de enviar um depoimento. Espere um minutinho para enviar outro.");
+      return;
+    }
+    // Robô: campo-armadilha preenchido. Finge que deu certo e não envia nada.
+    if ($("#dep-armadilha").value.trim()) {
+      mostrarOk("Agradecemos o carinho! Seu depoimento foi enviado e aparece aqui depois que a Ivna aprovar.");
+      return;
+    }
+
+    const botao = $("#dep-enviar");
+    botao.disabled = true;
+    botao.textContent = "Enviando...";
+    try {
+      const base = SUPABASE_URL.trim().replace(/\/+$/, "");
+      const resposta = await fetch(`${base}/rest/v1/depoimentos`, {
+        method: "POST",
+        headers: cabecalhosBanco(),
+        body: JSON.stringify({ id: novoId(), nome, ocasiao, texto, nota })
+      });
+      if (resposta.ok) {
+        try { localStorage.setItem(CHAVE_ULTIMO_DEPOIMENTO, String(Date.now())); } catch (erro) { /* ignora */ }
+        form.reset();
+        mostrarOk("Agradecemos o carinho! Seu depoimento foi enviado e aparece aqui depois que a Ivna aprovar.");
+      } else {
+        const corpo = await resposta.text();
+        if (corpo.includes("depoimentos_sem_links")) mostrarErro("Por segurança, não aceitamos endereços de internet no depoimento.");
+        else if (corpo.includes("Muitos envios")) mostrarErro("Estamos recebendo muitos envios agora. Tente de novo em alguns minutos.");
+        else mostrarErro("Não foi possível enviar agora. Tente de novo em instantes ou mande pelo WhatsApp.");
+      }
+    } catch (erro) {
+      mostrarErro("Sem conexão com o servidor. Verifique a internet ou mande pelo WhatsApp.");
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Enviar depoimento";
+    }
+  });
+}
+
+function renderizarDepoimentos() {
+  carregarDepoimentos();
+  ligarFormularioDepoimento();
 }
 
 function renderizarSobre() {

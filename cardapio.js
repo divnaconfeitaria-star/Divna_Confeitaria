@@ -40,6 +40,7 @@ const CARDAPIO = [
   /* ------------------------------ SALGADOS ------------------------------ */
   {
     id: "salgados",
+    foto: "assets/galeria/coxinhas.jpg",
     nome: "Salgados",
     unidade: "a unidade",
     secoes: [
@@ -103,6 +104,7 @@ const CARDAPIO = [
   /* ----------------------------- PÃO DELÍCIA ----------------------------- */
   {
     id: "pao-delicia",
+    foto: "assets/galeria/pao-delicia.jpg",
     nome: "Pão Delícia",
     unidade: "a unidade",
     prefixoPedido: "Pão delícia — ",
@@ -129,6 +131,7 @@ const CARDAPIO = [
   /* -------------------------------- DOCES -------------------------------- */
   {
     id: "doces",
+    foto: "assets/galeria/doces-coloridos.jpg",
     nome: "Doces",
     unidade: "a unidade",
     secoes: [
@@ -204,6 +207,7 @@ const CARDAPIO = [
   /* --------------------------- TORTAS SALGADAS --------------------------- */
   {
     id: "tortas-salgadas",
+    foto: "assets/galeria/torta-salgada.jpg",
     nome: "Tortas salgadas",
     secoes: [
       {
@@ -234,6 +238,7 @@ const CARDAPIO = [
   /* ------------------------------ PÃO METRO ------------------------------ */
   {
     id: "pao-metro",
+    foto: "assets/galeria/pao-metro-recheado.jpg",
     nome: "Pão metro",
     prefixoSubtitulo: "50 cm recheado · ",
     prefixoPedido: "Pão metro 50 cm — ",
@@ -253,6 +258,7 @@ const CARDAPIO = [
   /* --------------------------- BOLO CASEIRINHO --------------------------- */
   {
     id: "bolo-caseirinho",
+    foto: "assets/galeria/bolo-chocolate-morangos.jpg",
     nome: "Bolo caseirinho",
     prefixoSubtitulo: "Grande e coberto · ",
     prefixoPedido: "Bolo caseirinho — ",
@@ -269,6 +275,7 @@ const CARDAPIO = [
   /* ------------------------------- SUCOS (1 L) ------------------------------- */
   {
     id: "sucos",
+    foto: "assets/galeria/sucos.jpg",
     nome: "Sucos da fruta (1 L)",
     secoes: [
       {
@@ -291,6 +298,7 @@ const CARDAPIO = [
   /* ---------------------------- LANCHES E POTES ---------------------------- */
   {
     id: "lanches-e-potes",
+    foto: "assets/galeria/salada-de-frutas.jpg",
     nome: "Lanches e potes",
     secoes: [
       {

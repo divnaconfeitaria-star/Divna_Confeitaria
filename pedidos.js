@@ -185,6 +185,7 @@ async function abrirPainel() {
     mostrarTela("tela-painel");
     aplicarPeriodo(estado.periodo, false);
     await carregar();
+    carregarDepoimentos(); // atualiza o número de pendentes na aba
     iniciarAtualizacao();
   } catch (erro) {
     if (erro instanceof ErroSessao) irParaLogin("Sua sessão expirou. Entre de novo.");
@@ -468,6 +469,104 @@ function esconderAviso() {
   $("#aviso").hidden = true;
 }
 
+/* ------------------------------ DEPOIMENTOS ------------------------------
+   Os clientes enviam pelo site; chegam como "pendente" e só aparecem no site
+   depois de aprovados aqui (regras em supabase/depoimentos.sql). */
+
+const STATUS_DEP = { pendente: "Pendente", aprovado: "Aprovado", escondido: "Escondido" };
+// Reaproveita as cores dos pedidos: pendente = vermelho, aprovado = verde, escondido = cinza
+const COR_DEP = { pendente: "novo", aprovado: "entregue", escondido: "cancelado" };
+const depo = { itens: [], filtro: "pendente" };
+
+const estrelasDep = (nota) => {
+  const n = Math.round(Number(nota));
+  return n >= 1 && n <= 5 ? "★".repeat(n) + "☆".repeat(5 - n) : "sem nota";
+};
+
+let temporizadorAvisoDep;
+function avisarDep(texto, erro = false) {
+  const el = $("#aviso-dep");
+  el.textContent = texto;
+  el.classList.toggle("erro-aviso", erro);
+  el.hidden = !texto;
+  clearTimeout(temporizadorAvisoDep);
+  if (texto && !erro) temporizadorAvisoDep = setTimeout(() => { el.hidden = true; }, 4000);
+}
+
+async function carregarDepoimentos() {
+  try {
+    depo.itens = await api("GET", "depoimentos?select=id,criado_em,nome,ocasiao,texto,nota,status&order=criado_em.desc&limit=300");
+    desenharDepoimentos();
+  } catch (erro) {
+    if (erro instanceof ErroSessao) irParaLogin("Sua sessão expirou. Entre de novo.");
+    else avisarDep("Não foi possível carregar os depoimentos. Se é a primeira vez, confira se o arquivo supabase/depoimentos.sql já foi executado no Supabase.", true);
+  }
+}
+
+function templateDep(d) {
+  const quando = quandoFoi(d.criado_em);
+  const botoes = [];
+  if (d.status !== "aprovado") botoes.push(`<button type="button" class="adm-btn-sec adm-ok" data-dep-acao="aprovado" data-id="${esc(d.id)}">Aprovar</button>`);
+  if (d.status !== "escondido") botoes.push(`<button type="button" class="adm-btn-sec" data-dep-acao="escondido" data-id="${esc(d.id)}">Esconder</button>`);
+  botoes.push(`<button type="button" class="adm-btn-sec adm-perigo" data-dep-acao="apagar" data-id="${esc(d.id)}">Apagar</button>`);
+
+  return (
+    `<li class="adm-pedido" data-status="${COR_DEP[d.status] || "novo"}">` +
+    `<div class="adm-ped-topo">` +
+    `<div class="adm-ped-id"><span class="adm-codigo">${estrelasDep(d.nota)}</span><time datetime="${esc(d.criado_em)}">${esc(quando)}</time></div>` +
+    `<span class="adm-selo adm-selo-dep">${STATUS_DEP[d.status] || esc(d.status)}</span>` +
+    `</div>` +
+    `<p class="adm-cliente">${esc(String(d.nome || "").trim() || "Cliente")}${d.ocasiao ? ` · ${esc(d.ocasiao)}` : ""}</p>` +
+    `<p class="adm-dep-texto">${esc(d.texto)}</p>` +
+    `<div class="adm-dep-acoes">${botoes.join("")}</div>` +
+    `</li>`
+  );
+}
+
+function desenharDepoimentos() {
+  const pendentes = depo.itens.filter((d) => d.status === "pendente").length;
+  const contador = $("#contador-dep");
+  contador.textContent = pendentes;
+  contador.hidden = pendentes === 0;
+
+  $$("[data-dep-status]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.depStatus === depo.filtro ? "true" : "false"));
+  const lista = depo.filtro === "todos" ? depo.itens : depo.itens.filter((d) => d.status === depo.filtro);
+  $("#lista-dep").innerHTML = lista.map(templateDep).join("");
+  const vazio = $("#vazio-dep");
+  vazio.hidden = lista.length > 0;
+  vazio.textContent = depo.filtro === "pendente" ? "Nenhum depoimento esperando aprovação." : "Nenhum depoimento aqui.";
+}
+
+async function agirNoDepoimento(id, acao) {
+  const d = depo.itens.find((x) => x.id === id);
+  if (!d) return;
+  try {
+    if (acao === "apagar") {
+      if (!window.confirm("Apagar este depoimento de vez? Não dá para desfazer.")) return;
+      const r = await api("DELETE", `depoimentos?id=eq.${encodeURIComponent(id)}`, undefined, { Prefer: "return=representation" });
+      if (!Array.isArray(r) || r.length !== 1) throw new Error("Nada foi apagado");
+      depo.itens = depo.itens.filter((x) => x.id !== id);
+      avisarDep("Depoimento apagado.");
+    } else {
+      const r = await api("PATCH", `depoimentos?id=eq.${encodeURIComponent(id)}`, { status: acao }, { Prefer: "return=representation" });
+      if (!Array.isArray(r) || r.length !== 1) throw new Error("Nada foi alterado");
+      d.status = r[0].status;
+      avisarDep(acao === "aprovado" ? "Depoimento aprovado: já aparece no site." : "Depoimento escondido do site.");
+    }
+    desenharDepoimentos();
+  } catch (erro) {
+    if (erro instanceof ErroSessao) irParaLogin("Sua sessão expirou. Entre de novo.");
+    else avisarDep("Não foi possível salvar. Tente de novo.", true);
+  }
+}
+
+function mostrarAba(aba) {
+  $$("[data-aba]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.aba === aba ? "true" : "false"));
+  $("#aba-pedidos").hidden = aba !== "pedidos";
+  $("#aba-depoimentos").hidden = aba !== "depoimentos";
+  if (aba === "depoimentos") carregarDepoimentos();
+}
+
 /* ------------------------------ ATUALIZAÇÃO AUTOMÁTICA ------------------------------ */
 
 let relogio = null;
@@ -484,6 +583,7 @@ function atualizarSozinho() {
   const ativo = document.activeElement;
   if (ativo && ativo.tagName === "SELECT" && $("#lista").contains(ativo)) return; // não atrapalha quem está mexendo
   carregar();
+  carregarDepoimentos();
 }
 
 /* ----------------------------------- INÍCIO ----------------------------------- */
@@ -505,6 +605,18 @@ function iniciar() {
   );
   $("#lista").addEventListener("change", (e) => {
     if (e.target.matches("select[data-status-de]")) mudarStatus(e.target);
+  });
+  $$("[data-aba]").forEach((b) => b.addEventListener("click", () => mostrarAba(b.dataset.aba)));
+  $$("[data-dep-status]").forEach((b) =>
+    b.addEventListener("click", () => {
+      depo.filtro = b.dataset.depStatus;
+      desenharDepoimentos();
+    })
+  );
+  $("#btn-atualizar-dep").addEventListener("click", carregarDepoimentos);
+  $("#lista-dep").addEventListener("click", (e) => {
+    const botao = e.target.closest("[data-dep-acao]");
+    if (botao) agirNoDepoimento(botao.dataset.id, botao.dataset.depAcao);
   });
   document.addEventListener("visibilitychange", atualizarSozinho);
 

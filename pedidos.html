@@ -65,6 +65,12 @@
 
     <!-- ===================== PAINEL ===================== -->
     <section id="tela-painel" hidden aria-labelledby="titulo-painel">
+      <div class="adm-abas" role="group" aria-label="Seção do painel">
+        <button type="button" class="adm-aba" data-aba="pedidos" aria-pressed="true">Pedidos</button>
+        <button type="button" class="adm-aba" data-aba="depoimentos" aria-pressed="false">Depoimentos <span class="adm-contador" id="contador-dep" hidden>0</span></button>
+      </div>
+
+      <div id="aba-pedidos">
       <div class="adm-cabecalho">
         <div>
           <span class="eyebrow">Painel</span>
@@ -121,6 +127,32 @@
       <p class="adm-aviso" id="aviso" role="status" hidden></p>
       <p class="adm-vazio" id="vazio" hidden>Nenhum pedido neste período.</p>
       <ol class="adm-lista" id="lista"></ol>
+      </div>
+
+      <!-- ===================== DEPOIMENTOS (aprovar antes de aparecer no site) ===================== -->
+      <div id="aba-depoimentos" hidden>
+        <div class="adm-cabecalho">
+          <div>
+            <span class="eyebrow">Painel</span>
+            <h2 class="adm-titulo">Depoimentos</h2>
+          </div>
+          <div class="adm-acoes">
+            <button type="button" class="adm-btn-sec" id="btn-atualizar-dep">Atualizar</button>
+          </div>
+        </div>
+        <p class="adm-intro">Os depoimentos enviados pelos clientes chegam aqui como <strong>Pendentes</strong>. Só aparecem no site os que você <strong>aprovar</strong>.</p>
+
+        <div class="adm-chips adm-chips-dep" role="group" aria-label="Filtrar depoimentos">
+          <button type="button" class="adm-chip" data-dep-status="pendente">Pendentes</button>
+          <button type="button" class="adm-chip" data-dep-status="aprovado">Aprovados</button>
+          <button type="button" class="adm-chip" data-dep-status="escondido">Escondidos</button>
+          <button type="button" class="adm-chip" data-dep-status="todos">Todos</button>
+        </div>
+
+        <p class="adm-aviso" id="aviso-dep" role="status" hidden></p>
+        <p class="adm-vazio" id="vazio-dep" hidden>Nenhum depoimento aqui.</p>
+        <ol class="adm-lista" id="lista-dep"></ol>
+      </div>
     </section>
   </main>
 
