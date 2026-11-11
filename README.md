@@ -40,7 +40,10 @@ assets/         logo, ícone e imagem de prévia do link (og-imagem.jpg)
 - **Número do WhatsApp:** `script.js`, constante `WHATSAPP_NUMBER` (código do país + DDD + número, só dígitos).
   O telefone do rodapé acompanha esse valor.
 - **Sabores e preços:** `cardapio.js` (o topo do arquivo explica passo a passo).
-- **Quantidade mínima:** em `cardapio.js`, acrescente `minimo: 30` no grupo desejado.
+- **Pedido mínimo:** em `cardapio.js`, no topo, `PEDIDO_MINIMO` (hoje 30 unidades, somando todos os itens) e
+  `CATEGORIAS_SEM_MINIMO` (hoje bolo caseirinho, sucos, tortas salgadas e pão metro, que podem ser pedidos por unidade).
+  Enquanto faltar unidade, o carrinho mostra quantas faltam e o botão de finalizar fica desligado.
+  Para exigir mínimo só de um item específico, acrescente `minimo: 30` no grupo dele.
 - **Texto de apresentação:** `index.html`, procure por `EDITAR: texto sobre a confeitaria`.
 - **Fotos dos produtos:** coloque os arquivos em `assets/galeria/` e liste em `galeria.js`
   (o topo do arquivo explica). Foto que ainda não existe aparece como um quadro "foto em breve".

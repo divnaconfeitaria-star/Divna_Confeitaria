@@ -1745,3 +1745,6 @@ main > section[id] { scroll-margin-top: var(--topo-h); }
   .js .cortina > *,
   .js .palavra > span { transform: none; }
 }
+
+/* Aviso de pedido mínimo, dentro do carrinho */
+.aviso-minimo { align-self: stretch; border-radius: 16px; text-align: left; line-height: 1.5; }

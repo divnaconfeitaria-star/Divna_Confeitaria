@@ -33,8 +33,17 @@
    primeiro toque no "+" e mostra "mín. 30 un." ao lado do item.
    ===================================================================== */
 
+/* PEDIDO MÍNIMO
+   O pedido só pode ser finalizado quando a SOMA das unidades de todos os itens
+   (salgados, doces, pão delícia, lanches...) chega a PEDIDO_MINIMO, em qualquer mistura.
+   Os itens das categorias abaixo NÃO entram nessa conta e podem ser pedidos por unidade.
+   Para mudar o número, troque PEDIDO_MINIMO. Para tirar ou pôr uma categoria na regra,
+   mexa na lista (use o "id" da categoria). */
+const PEDIDO_MINIMO = 30;
+const CATEGORIAS_SEM_MINIMO = ["bolo-caseirinho", "sucos", "tortas-salgadas", "pao-metro"];
+
 // Aviso mostrado abaixo da lista de categorias (deixe "" para esconder).
-const AVISO_CARDAPIO = "Forminhas convencionais · quantidade mínima de 30 unidades";
+const AVISO_CARDAPIO = "Pedido mínimo de 30 unidades, somando salgados, doces e lanches · Bolos, tortas, pão metro e sucos não têm mínimo";
 
 const CARDAPIO = [
   /* ------------------------------ SALGADOS ------------------------------ */

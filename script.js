@@ -146,6 +146,16 @@ function salvarCliente() {
 const idsNoCarrinho = () => ORDEM.filter((id) => carrinho[id] > 0);
 const totalCentavos = () => idsNoCarrinho().reduce((soma, id) => soma + carrinho[id] * ITENS[id].centavos, 0);
 
+/* Pedido mínimo (PEDIDO_MINIMO e CATEGORIAS_SEM_MINIMO ficam em cardapio.js):
+   soma das unidades dos itens que entram na regra. Bolo, suco etc. não contam e não são barrados. */
+const entraNoMinimo = (id) => !(typeof CATEGORIAS_SEM_MINIMO !== "undefined" && CATEGORIAS_SEM_MINIMO.includes(ITENS[id].categoriaId));
+const unidadesDoMinimo = () => idsNoCarrinho().filter(entraNoMinimo).reduce((soma, id) => soma + carrinho[id], 0);
+function faltamParaMinimo() {
+  const minimo = typeof PEDIDO_MINIMO === "number" ? PEDIDO_MINIMO : 0;
+  const unidades = unidadesDoMinimo();
+  return unidades > 0 && unidades < minimo ? minimo - unidades : 0;
+}
+
 /* --------------------------- MONTAGEM DO CARDÁPIO --------------------------- */
 
 function textoApoio(cat) {
@@ -377,7 +387,13 @@ function atualizarPainel(ctx = {}) {
   }
 
   $("#total-valor").textContent = dinheiro(totalCentavos());
-  $("#btn-finalizar").disabled = ids.length === 0;
+  const faltam = faltamParaMinimo();
+  const aviso = $("#aviso-minimo");
+  aviso.hidden = faltam === 0;
+  if (faltam > 0) {
+    aviso.textContent = `Pedido mínimo de ${PEDIDO_MINIMO} unidades (somando salgados, doces e lanches). Faltam ${faltam} ${faltam === 1 ? "unidade" : "unidades"}.`;
+  }
+  $("#btn-finalizar").disabled = ids.length === 0 || faltam > 0;
   $("#btn-limpar").hidden = ids.length === 0;
   if (!ids.length) $("#whatsapp-fallback").hidden = true;
 }
@@ -674,6 +690,7 @@ function aplicarMinimos() {
 function finalizarPedido() {
   aplicarMinimos();
   if (!idsNoCarrinho().length) return;
+  if (faltamParaMinimo() > 0) return; // o botão já fica desligado; esta é uma trava extra
 
   if (!$("#campo-nome").value.trim()) {
     mostrarErroNome(true);
